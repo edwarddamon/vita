@@ -1,5 +1,5 @@
 # vita
-> personal micro service
+> personal micro service（微服务）
 # 项目模块
 - vita-common 公共模块
 - vita-gateway 网关模块
