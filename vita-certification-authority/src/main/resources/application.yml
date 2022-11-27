@@ -1,0 +1,18 @@
+server:
+  port: 8023
+
+spring:
+  application:
+    name: vita-authority-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: vita-dev
+        group: dev
+
+logging:
+  level:
+    com.vita: debug

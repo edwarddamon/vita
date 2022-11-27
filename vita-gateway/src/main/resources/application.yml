@@ -1,0 +1,27 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: vita-gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: vita-dev
+        group: dev
+    gateway:
+      routes:
+        - id: vita-authority
+          uri: lb://vita-authority-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            # 转发后路径去掉 /auth
+            - StripPrefix=1
+
+logging:
+  level:
+    com.vita: debug
