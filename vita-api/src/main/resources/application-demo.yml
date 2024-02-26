@@ -14,6 +14,14 @@ spring:
         password: nacos
         namespace: vita-dev
         group: dev
+  mail:
+    # 邮箱发送配置（以下案例为qq邮箱配置）
+    host: smtp.qq.com
+    port: 587
+    # 邮箱账号
+    username: xxxxxx@qq.com
+    # 授权码（邮箱生成）
+    password: xxxxxx
 
 # 接口文档配置
 knife4j:

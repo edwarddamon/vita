@@ -21,7 +21,7 @@ public enum ResultCode {
     /**
      * 错误状态码
      */
-    UNAUTHORIZED(401, "Unauthorized"),
+    UNAUTHORIZED(401, "UnAuthorized"),
 
     ;
 
