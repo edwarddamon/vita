@@ -4,6 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+/**
+ * 认证服务
+ *
+ * @author edward
+ */
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "com.vita.auth")
 public class AuthCenterApplication {

@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * @since 2023/06/01 17:35
+ * 外部接口服务
+ *
+ * @author edward
  */
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "com.vita.api")

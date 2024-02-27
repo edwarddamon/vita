@@ -12,6 +12,7 @@
         <module>vita-gateway</module>
         <module>vita-api</module>
         <module>vita-auth-center</module>
+        <module>vita-message</module>
     </modules>
 
     <packaging>pom</packaging>
