@@ -30,6 +30,12 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+        - id: vita-message
+          uri: lb://vita-message
+          predicates:
+            - Path=/message/**
+          filters:
+            - StripPrefix=1
 
 # 接口文档配置
 knife4j:
@@ -44,6 +50,10 @@ knife4j:
         url: /auth/v3/api-docs?group=default
         service-name: vita-auth-center
         context-path: /auth
+      - name: 消息微服务
+        url: /message/v3/api-docs?group=default
+        service-name: vita-message
+        context-path: /message
 
 # 日志级别
 logging:
