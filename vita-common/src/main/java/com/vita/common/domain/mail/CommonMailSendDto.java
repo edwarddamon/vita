@@ -3,6 +3,7 @@ package com.vita.common.domain.mail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 
@@ -20,15 +21,17 @@ public class CommonMailSendDto {
     /**
      * 邮件接收方
      */
-    @Schema(description = "邮件接收方", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "邮件接收方", maxLength = 64, requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "邮件接收方不能为空")
-    private String to;
+    @Length(max = 64, message = "邮件接收方长度不能超过64")
+    private String receiver;
 
     /**
      * 邮件主题
      */
-    @Schema(description = "邮件主题", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "邮件主题", maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "邮件主题不能为空")
+    @Length(max = 255, message = "邮件主题长度不能超过255")
     private String subject;
 
     /**

@@ -52,7 +52,7 @@ public class MailServiceImpl implements MailService {
                                      MimeMessage message) throws MessagingException {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(from);
-        helper.setTo(commonMailSendDto.getTo());
+        helper.setTo(commonMailSendDto.getReceiver());
         helper.setSubject(commonMailSendDto.getSubject());
         helper.setText(commonMailSendDto.getContent(), true);
         // helper.addAttachment(); 添加邮件附件
