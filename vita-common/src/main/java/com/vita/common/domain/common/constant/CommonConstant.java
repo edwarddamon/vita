@@ -1,4 +1,4 @@
-package com.vita.common.domain.common;
+package com.vita.common.domain.common.constant;
 
 /**
  * 通用常量

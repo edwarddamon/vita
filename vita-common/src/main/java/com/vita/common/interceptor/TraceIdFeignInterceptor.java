@@ -1,6 +1,6 @@
 package com.vita.common.interceptor;
 
-import com.vita.common.domain.common.CommonConstant;
+import com.vita.common.domain.common.constant.CommonConstant;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.slf4j.MDC;

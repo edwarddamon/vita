@@ -1,4 +1,4 @@
-package com.vita.common.domain.common;
+package com.vita.common.domain.common.constant;
 
 /**
  * 微服务名
@@ -6,7 +6,7 @@ package com.vita.common.domain.common;
  * @author Edward
  * @date 2024-02-28 17:12
  */
-public class AppNameConstant {
+public class AppCodeConstant {
 
     /**
      * 外部交互微服务

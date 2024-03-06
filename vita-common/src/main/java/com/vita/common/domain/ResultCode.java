@@ -19,9 +19,14 @@ public enum ResultCode {
     FAIL(1000, "系统异常"),
 
     /**
-     * 错误状态码
+     * 未登录
      */
-    UNAUTHORIZED(401, "UnAuthorized"),
+    UNAUTHORIZED(401, "请登录后操作！"),
+
+    /**
+     * 权限不足
+     */
+    NO_INTERFACE_PERMISSION(402, "您的权限不足！"),
 
     /**
      * 参数校验异常状态码

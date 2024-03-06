@@ -1,7 +1,7 @@
 package com.vita.common.interceptor;
 
 import com.vita.common.utils.TraceIdUtil;
-import com.vita.common.domain.common.CommonConstant;
+import com.vita.common.domain.common.constant.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;

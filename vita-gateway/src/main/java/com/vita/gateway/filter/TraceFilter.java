@@ -1,6 +1,6 @@
 package com.vita.gateway.filter;
 
-import com.vita.common.domain.common.CommonConstant;
+import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.utils.TraceIdUtil;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;

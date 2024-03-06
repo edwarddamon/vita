@@ -2,7 +2,7 @@ package com.vita.common.exception.handler;
 
 import com.vita.common.domain.Result;
 import com.vita.common.domain.ResultCode;
-import com.vita.common.domain.common.CommonConstant;
+import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
