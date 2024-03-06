@@ -24,9 +24,14 @@ public enum ResultCode {
     UNAUTHORIZED(401, "请登录后操作！"),
 
     /**
+     * 获取用户信息异常
+     */
+    USER_INFO_ERROR(402, "获取用户信息失败！"),
+
+    /**
      * 权限不足
      */
-    NO_INTERFACE_PERMISSION(402, "您的权限不足！"),
+    NO_INTERFACE_PERMISSION(403, "您的权限不足！"),
 
     /**
      * 参数校验异常状态码
