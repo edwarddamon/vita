@@ -3,8 +3,9 @@ package com.vita.gateway.filter;
 import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.vita.common.domain.ResultCode;
+import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.domain.common.constant.HttpConstant;
-import com.vita.common.domain.common.redis.RedisKeyDictionary;
+import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.user.InterfaceInfoBO;
 import com.vita.common.domain.user.UserInfoBO;
 import com.vita.common.exception.ServiceException;
@@ -24,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Edward
@@ -32,9 +34,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class AuthFilter implements GlobalFilter, Ordered {
-
-    public static final String AUTHORIZATION_PREFIX = "vita.";
-    public static final String EMPTY = "";
     public static final String API_DOCS = "api-docs";
     private static final String HEATH_CHECK = "/health/check";
 
@@ -55,11 +54,28 @@ public class AuthFilter implements GlobalFilter, Ordered {
         // 校验用户权限
         UserInfoBO userInfoBO = validateUserAUth(request, antPathMatcher);
 
+        // token 续期
+        expireToken(request);
+
         // 用户信息存请求头
         final ServerHttpRequest finalRequest = request.mutate()
                 .header(HttpConstant.USER_INFO, new Gson().toJson(userInfoBO.setInterfaceInfoBos(null)))
                 .build();
         return chain.filter(exchange.mutate().request(finalRequest).build());
+    }
+
+    private void expireToken(ServerHttpRequest request) {
+        List<String> vitaTokenList = request.getHeaders().get(HttpHeaders.AUTHORIZATION);
+        if (CollectionUtils.isEmpty(vitaTokenList)) {
+            return;
+        }
+        String vitaToken = vitaTokenList.get(0);
+
+        // token 续期
+        redisTemplate.expire(
+                RedisKeyDict.USER_TOKEN + vitaToken,
+                CommonConstant.AUTHORIZATION_TOKEN_EXPIRE_DAY,
+                TimeUnit.DAYS);
     }
 
     private UserInfoBO validateUserAUth(ServerHttpRequest request, AntPathMatcher antPathMatcher) {
@@ -71,8 +87,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         // 校验用户是否登录
-        String token = headerToken.get(0).replace(AUTHORIZATION_PREFIX, EMPTY);
-        final String userInfoString = redisTemplate.opsForValue().get(RedisKeyDictionary.USER_TOKEN + token);
+        String token = headerToken.get(0);
+        final String userInfoString = redisTemplate.opsForValue().get(RedisKeyDict.USER_TOKEN + token);
         if (!StringUtils.hasLength(userInfoString)) {
             log.warn("[authFilter] 未查询到该用户的登录信息或已过期, token: {}", token);
             throw new ServiceException(ResultCode.UNAUTHORIZED);
@@ -82,7 +98,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
         UserInfoBO userInfoBO = new Gson().fromJson(userInfoString, UserInfoBO.class);
         final List<InterfaceInfoBO> authInterfaces = userInfoBO.getInterfaceInfoBos();
         if (CollectionUtils.isEmpty(authInterfaces)) {
-            log.warn("[authFilter] 该用户接口权限为空, token: {}, 用户昵称: {}, 手机号：{}", token, userInfoBO.getUsername(), userInfoBO.getPhone());
+            log.warn("[authFilter] 该用户接口权限为空, token: {}, 用户昵称: {}, 手机号：{}, 邮箱：{}",
+                    token, userInfoBO.getUsername(), userInfoBO.getPhone(), userInfoBO.getEmail());
             throw new ServiceException(ResultCode.NO_INTERFACE_PERMISSION);
         }
 
@@ -90,7 +107,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
         boolean authMatch = authInterfaces.stream()
                 .anyMatch(item -> antPathMatcher.match(item.getPath(), request.getURI().getPath()));
         if (!authMatch) {
-            log.error("[authFilter] 该用户无该接口权限, token: {}, 用户昵称: {}, 手机号：{}", token, userInfoBO.getUsername(), userInfoBO.getPhone());
+            log.error("[authFilter] 该用户无该接口权限, token: {}, 用户昵称: {}, 手机号：{}, 邮箱：{}",
+                    token, userInfoBO.getUsername(), userInfoBO.getPhone(), userInfoBO.getEmail());
             throw new ServiceException(ResultCode.NO_INTERFACE_PERMISSION);
         }
 
@@ -106,7 +124,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         // 无需鉴权的接口
-        final String notNeedAuthInterfaces = redisTemplate.opsForValue().get(RedisKeyDictionary.NOT_NEED_AUTH_INTERFACE);
+        final String notNeedAuthInterfaces = redisTemplate.opsForValue().get(RedisKeyDict.NOT_NEED_AUTH_INTERFACE);
         if (StringUtils.hasLength(notNeedAuthInterfaces)) {
             List<InterfaceInfoBO> notNeedAuthInterfaceList = new Gson().fromJson(notNeedAuthInterfaces, new TypeToken<List<InterfaceInfoBO>>() {
             }.getType());

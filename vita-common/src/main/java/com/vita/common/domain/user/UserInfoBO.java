@@ -34,6 +34,11 @@ public class UserInfoBO {
     private String phone;
 
     /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
      * 接口权限相关数据
      */
     private List<InterfaceInfoBO> interfaceInfoBos;

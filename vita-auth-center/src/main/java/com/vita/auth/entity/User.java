@@ -49,6 +49,12 @@ public class User {
     private String phone;
 
     /**
+     * 邮箱
+     */
+    @TableField("email")
+    private String email;
+
+    /**
      * 逻辑删除: 0 - 未删除；1 - 已删除
      */
     @TableField("del_flag")
@@ -65,4 +71,7 @@ public class User {
      */
     @TableField("update_time")
     private LocalDateTime updateTime;
+
+    public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
 }

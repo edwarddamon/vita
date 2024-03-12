@@ -14,6 +14,15 @@ public class CommonConstant {
     public static final String TRACE_ID = "traceId";
 
     /**
+     * token 前缀
+     */
+    public static final String AUTHORIZATION_PREFIX = "vita.";
+    /**
+     * token 过期天数
+     */
+    public static final Integer AUTHORIZATION_TOKEN_EXPIRE_DAY = 3;
+
+    /**
      * 分号
      */
     public static final String SEMICOLON = ";";

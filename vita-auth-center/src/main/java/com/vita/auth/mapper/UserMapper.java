@@ -2,7 +2,11 @@ package com.vita.auth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vita.auth.entity.User;
+import com.vita.common.domain.user.InterfaceInfoBO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +19,11 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
+    /**
+     * 查询用户拥有的需要认证的接口权限
+     *
+     * @param userId 用户Id
+     * @return 接口列表
+     */
+    List<InterfaceInfoBO> describeUserInterfaces(@Param("userId") Long userId);
 }

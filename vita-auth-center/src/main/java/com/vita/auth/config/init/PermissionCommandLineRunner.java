@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.vita.auth.entity.InterfacePermission;
 import com.vita.auth.service.InterfacePermissionService;
 import com.vita.common.domain.common.enums.AuthEnum;
-import com.vita.common.domain.common.redis.RedisKeyDictionary;
+import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.user.InterfaceInfoBO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,18 +35,22 @@ public class PermissionCommandLineRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+
+        // 查询无需鉴权接口
         List<InterfacePermission> permissionList = permissionService.list(new QueryWrapper<InterfacePermission>()
                 .eq(InterfacePermission.NEED_AUTH, AuthEnum.NOT_NEED_AUTH.getAuthFlag()));
         if (CollectionUtils.isEmpty(permissionList)) {
             log.info("[初始化接口权限] 无不需要鉴权的接口权限");
+            redisTemplate.delete(RedisKeyDict.NOT_NEED_AUTH_INTERFACE);
             return;
         }
 
+        // 设置无需鉴权接口
         final List<InterfaceInfoBO> infoBOList = permissionList.stream()
                 .map(interfacePermission -> new InterfaceInfoBO()
                         .setName(interfacePermission.getName())
                         .setPath(interfacePermission.getPath()))
                 .collect(Collectors.toList());
-        redisTemplate.opsForValue().set(RedisKeyDictionary.NOT_NEED_AUTH_INTERFACE, new Gson().toJson(infoBOList));
+        redisTemplate.opsForValue().set(RedisKeyDict.NOT_NEED_AUTH_INTERFACE, new Gson().toJson(infoBOList));
     }
 }

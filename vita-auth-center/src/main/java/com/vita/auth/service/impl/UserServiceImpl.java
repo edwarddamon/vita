@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vita.auth.entity.User;
 import com.vita.auth.mapper.UserMapper;
 import com.vita.auth.service.UserService;
+import com.vita.common.domain.user.InterfaceInfoBO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,6 +19,13 @@ import org.springframework.stereotype.Service;
  * @since 2024-03-06
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    private final UserMapper userMapper;
+
+    @Override
+    public List<InterfaceInfoBO> describeInterfaces(Long userId) {
+        return userMapper.describeUserInterfaces(userId);
+    }
 }
