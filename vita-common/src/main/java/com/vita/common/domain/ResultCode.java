@@ -31,7 +31,7 @@ public enum ResultCode {
     /**
      * 权限不足
      */
-    NO_INTERFACE_PERMISSION(403, "您的权限不足！"),
+    NO_INTERFACE_PERMISSION(405, "您的权限不足！"),
 
     /**
      * 参数校验异常状态码

@@ -1,5 +1,6 @@
 package com.vita.gateway.exception;
 
+import com.vita.common.exception.ServiceException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Configuration
 public class GatewayErrorAttributes extends DefaultErrorAttributes {
@@ -45,6 +47,13 @@ public class GatewayErrorAttributes extends DefaultErrorAttributes {
     }
 
     private HttpStatus determineHttpStatus(Throwable error, MergedAnnotation<ResponseStatus> responseStatusAnnotation) {
+        if (error instanceof ServiceException) {
+            HttpStatus httpStatus = HttpStatus.resolve(((ServiceException) error).getCode());
+            if (Objects.nonNull(httpStatus)) {
+                return httpStatus;
+            }
+        }
+
         if (error instanceof ResponseStatusException) {
             return ((ResponseStatusException) error).getStatus();
         }
