@@ -3,6 +3,7 @@ package com.vita.auth.controller;
 import com.vita.auth.facade.UserFacade;
 import com.vita.common.domain.Result;
 import com.vita.common.domain.user.LoginDTO;
+import com.vita.common.domain.user.UserInfoVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,8 @@ public class UserController {
 
     @Operation(summary = "用户信息查询")
     @GetMapping(value = "/info")
-    public Result<String> info() {
-        return Result.success("success");
+    public Result<UserInfoVO> info() {
+        return Result.success(userFacade.describeUserInfo());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.vita.auth.facade;
 
 import com.vita.common.domain.user.LoginDTO;
+import com.vita.common.domain.user.UserInfoVO;
 
 /**
  * @author Edward
@@ -14,4 +15,11 @@ public interface UserFacade {
      * @return token
      */
     String login(LoginDTO loginDTO);
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 当前登录用户信息
+     */
+    UserInfoVO describeUserInfo();
 }

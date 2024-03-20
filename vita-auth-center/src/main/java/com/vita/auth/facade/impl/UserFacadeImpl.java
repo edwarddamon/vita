@@ -14,7 +14,9 @@ import com.vita.common.domain.common.enums.DelFlagEnum;
 import com.vita.common.domain.user.InterfaceInfoBO;
 import com.vita.common.domain.user.LoginDTO;
 import com.vita.common.domain.user.UserInfoBO;
+import com.vita.common.domain.user.UserInfoVO;
 import com.vita.common.exception.ServiceException;
+import com.vita.common.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -50,6 +52,17 @@ public class UserFacadeImpl implements UserFacade {
 
         // 生成token && 权限填充
         return describeAndGenerateToken(user);
+    }
+
+    @Override
+    public UserInfoVO describeUserInfo() {
+        UserInfoBO currentUser = TokenUtil.getCurrentUser();
+
+        return new UserInfoVO()
+                .setAvatar(currentUser.getAvatar())
+                .setUsername(currentUser.getUsername())
+                .setPhone(currentUser.getPhone())
+                .setEmail(currentUser.getEmail());
     }
 
     private String describeAndGenerateToken(User user) {
