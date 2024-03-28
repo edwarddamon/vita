@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Edward
@@ -41,6 +42,6 @@ public class UserInfoBO {
     /**
      * 接口权限相关数据
      */
-    private List<InterfaceInfoBO> interfaceInfoBos;
+    private Set<InterfaceInfoBO> interfaceInfoBos;
 
 }

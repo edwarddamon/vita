@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserMapper userMapper;
 
     @Override
-    public List<InterfaceInfoBO> describeInterfaces(Long userId) {
+    public Set<InterfaceInfoBO> describeInterfaces(Long userId) {
         return userMapper.describeUserInterfaces(userId);
     }
 }

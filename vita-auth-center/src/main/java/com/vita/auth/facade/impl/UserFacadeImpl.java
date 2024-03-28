@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,7 +67,7 @@ public class UserFacadeImpl implements UserFacade {
 
     private String describeAndGenerateToken(User user) {
         // 获取用户接口权限
-        List<InterfaceInfoBO> interfaceInfoBOList = userService.describeInterfaces(user.getId());
+        Set<InterfaceInfoBO> interfaceInfoBOList = userService.describeInterfaces(user.getId());
         UserInfoBO userInfoBO = new UserInfoBO()
                 .setUserId(user.getId())
                 .setUsername(user.getUsername())

@@ -25,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -96,7 +97,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
         // 校验登录用户是否有接口权限
         UserInfoBO userInfoBO = new Gson().fromJson(userInfoString, UserInfoBO.class);
-        final List<InterfaceInfoBO> authInterfaces = userInfoBO.getInterfaceInfoBos();
+        final Set<InterfaceInfoBO> authInterfaces = userInfoBO.getInterfaceInfoBos();
         if (CollectionUtils.isEmpty(authInterfaces)) {
             log.warn("[authFilter] 该用户接口权限为空, token: {}, 用户昵称: {}, 手机号：{}, 邮箱：{}",
                     token, userInfoBO.getUsername(), userInfoBO.getPhone(), userInfoBO.getEmail());

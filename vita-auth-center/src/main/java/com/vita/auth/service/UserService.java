@@ -6,6 +6,7 @@ import com.vita.auth.entity.User;
 import com.vita.common.domain.user.InterfaceInfoBO;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -17,5 +18,5 @@ import java.util.List;
  */
 public interface UserService extends IService<User> {
 
-    List<InterfaceInfoBO> describeInterfaces(Long userId);
+    Set<InterfaceInfoBO> describeInterfaces(Long userId);
 }

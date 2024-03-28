@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -25,5 +26,5 @@ public interface UserMapper extends BaseMapper<User> {
      * @param userId 用户Id
      * @return 接口列表
      */
-    List<InterfaceInfoBO> describeUserInterfaces(@Param("userId") Long userId);
+    Set<InterfaceInfoBO> describeUserInterfaces(@Param("userId") Long userId);
 }
