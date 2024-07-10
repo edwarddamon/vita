@@ -39,9 +39,4 @@ public class UserInfoBO {
      */
     private String email;
 
-    /**
-     * 接口权限相关数据
-     */
-    private Set<InterfaceInfoBO> interfaceInfoBos;
-
 }

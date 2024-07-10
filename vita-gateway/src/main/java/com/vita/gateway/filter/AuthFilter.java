@@ -1,14 +1,13 @@
 package com.vita.gateway.filter;
 
 import com.alibaba.nacos.shaded.com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.domain.common.constant.HttpConstant;
 import com.vita.common.domain.common.dict.RedisKeyDict;
-import com.vita.common.domain.user.InterfaceInfoBO;
 import com.vita.common.domain.user.UserInfoBO;
 import com.vita.common.exception.ServiceException;
+import com.vita.gateway.config.properties.InterfaceWhiteListProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -25,7 +24,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,6 +37,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private static final String HEATH_CHECK = "/health/check";
 
     private final StringRedisTemplate redisTemplate;
+    private final InterfaceWhiteListProperties whiteListProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -46,7 +45,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         final ServerHttpRequest request = exchange.getRequest();
         final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-        // 校验是否为无需鉴权的接口（swagger、健康检查、无需鉴权的接口）
+        // 校验是否为无需鉴权的接口（swagger、健康检查、白名单接口）
         boolean unAuth = validateUnAuth(request, antPathMatcher);
         if (unAuth) {
             return chain.filter(exchange);
@@ -60,7 +59,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
         // 用户信息存请求头
         final ServerHttpRequest finalRequest = request.mutate()
-                .header(HttpConstant.USER_INFO, new Gson().toJson(userInfoBO.setInterfaceInfoBos(null)))
+                .header(HttpConstant.USER_INFO, new Gson().toJson(userInfoBO))
                 .build();
         return chain.filter(exchange.mutate().request(finalRequest).build());
     }
@@ -80,6 +79,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     }
 
     private UserInfoBO validateUserAUth(ServerHttpRequest request, AntPathMatcher antPathMatcher) {
+
         // 校验用户是否登录
         final List<String> headerToken = request.getHeaders().get(HttpHeaders.AUTHORIZATION);
         if (CollectionUtils.isEmpty(headerToken)) {
@@ -96,24 +96,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         // 校验登录用户是否有接口权限
-        UserInfoBO userInfoBO = new Gson().fromJson(userInfoString, UserInfoBO.class);
-        final Set<InterfaceInfoBO> authInterfaces = userInfoBO.getInterfaceInfoBos();
-        if (CollectionUtils.isEmpty(authInterfaces)) {
-            log.warn("[authFilter] 该用户接口权限为空, token: {}, 用户昵称: {}, 手机号：{}, 邮箱：{}",
-                    token, userInfoBO.getUsername(), userInfoBO.getPhone(), userInfoBO.getEmail());
-            throw new ServiceException(ResultCode.NO_INTERFACE_PERMISSION);
-        }
-
-        // 校验是否有该接口的权限
-        boolean authMatch = authInterfaces.stream()
-                .anyMatch(item -> antPathMatcher.match(item.getPath(), request.getURI().getPath()));
-        if (!authMatch) {
-            log.error("[authFilter] 该用户无该接口权限, token: {}, 用户昵称: {}, 手机号：{}, 邮箱：{}",
-                    token, userInfoBO.getUsername(), userInfoBO.getPhone(), userInfoBO.getEmail());
-            throw new ServiceException(ResultCode.NO_INTERFACE_PERMISSION);
-        }
-
-        return userInfoBO;
+        return new Gson().fromJson(userInfoString, UserInfoBO.class);
     }
 
     private boolean validateUnAuth(ServerHttpRequest request, AntPathMatcher antPathMatcher) {
@@ -124,15 +107,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
             return true;
         }
 
-        // 无需鉴权的接口
-        final String notNeedAuthInterfaces = redisTemplate.opsForValue().get(RedisKeyDict.NOT_NEED_AUTH_INTERFACE);
-        if (StringUtils.hasLength(notNeedAuthInterfaces)) {
-            List<InterfaceInfoBO> notNeedAuthInterfaceList = new Gson().fromJson(notNeedAuthInterfaces, new TypeToken<List<InterfaceInfoBO>>() {
-            }.getType());
-            return notNeedAuthInterfaceList.stream().anyMatch(item -> antPathMatcher.match(item.getPath(), path));
+        // 白名单接口
+        List<String> whiteList = whiteListProperties.getWhiteList();
+        if (CollectionUtils.isEmpty(whiteList)) {
+            return false;
         }
-
-        return false;
+        return whiteList.stream()
+                .anyMatch(item -> antPathMatcher.match(item, request.getURI().getPath()));
     }
 
     @Override

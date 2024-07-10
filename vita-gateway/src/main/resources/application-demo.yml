@@ -37,6 +37,10 @@ spring:
           filters:
             - StripPrefix=1
 
+interface:
+  whitelist:
+    - /auth/user/login
+
 # 接口文档配置
 knife4j:
   gateway:

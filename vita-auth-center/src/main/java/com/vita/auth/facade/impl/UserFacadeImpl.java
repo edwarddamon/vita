@@ -50,7 +50,7 @@ public class UserFacadeImpl implements UserFacade {
                 .eq(User.PASSWORD, realPassword));
         validateUserInfo(user);
 
-        // 生成token && 权限填充
+        // 生成token && 存入redis
         return describeAndGenerateToken(user);
     }
 
@@ -66,15 +66,13 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     private String describeAndGenerateToken(User user) {
-        // 获取用户接口权限
-        Set<InterfaceInfoBO> interfaceInfoBOList = userService.describeInterfaces(user.getId());
+        // 转为序列化对象
         UserInfoBO userInfoBO = new UserInfoBO()
                 .setUserId(user.getId())
                 .setUsername(user.getUsername())
                 .setAvatar(user.getAvatar())
                 .setPhone(user.getPhone())
-                .setEmail(user.getEmail())
-                .setInterfaceInfoBos(interfaceInfoBOList);
+                .setEmail(user.getEmail());
 
         // 生成 token
         String vitaToken = CommonConstant.AUTHORIZATION_PREFIX + UUID.randomUUID().toString(true);
