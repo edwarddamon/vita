@@ -26,18 +26,6 @@ public class UserController {
 
     private final UserFacade userFacade;
 
-    @Operation(summary = "邮箱验证码发送")
-    @PostMapping(value = "/mail/verification")
-    public Result<Void> sendVerificationCode() {
-        return null;
-    }
-
-    @Operation(summary = "注册用户")
-    @PostMapping(value = "/register")
-    public Result<Void> register() {
-        return null;
-    }
-
     @Operation(summary = "登录")
     @PostMapping(value = "/login")
     public Result<String> login(@Validated @RequestBody LoginDTO loginDTO) {
