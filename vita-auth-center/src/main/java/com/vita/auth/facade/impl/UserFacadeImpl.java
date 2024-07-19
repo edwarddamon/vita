@@ -11,6 +11,7 @@ import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.common.enums.DelFlagEnum;
+import com.vita.common.domain.user.InterfaceInfoBO;
 import com.vita.common.domain.user.LoginDTO;
 import com.vita.common.domain.user.UserInfoBO;
 import com.vita.common.domain.user.UserInfoVO;
@@ -20,8 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Objects;
 import java.util.Set;
@@ -66,21 +65,6 @@ public class UserFacadeImpl implements UserFacade {
                 .setEmail(currentUser.getEmail());
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void logout() {
-        UserInfoBO currentUser = TokenUtil.getCurrentUser();
-        // 获取当前用户登录的所有登录token
-        Set<String> tokenList = redisTemplate.opsForSet().members(RedisKeyDict.USER_ONLINE + currentUser.getUserId());
-        if (CollectionUtils.isEmpty(tokenList)) {
-            return;
-        }
-        // 清理所有token
-        tokenList.forEach(token -> redisTemplate.delete(RedisKeyDict.USER_TOKEN + token));
-        // 删除用户在线信息
-        redisTemplate.delete(RedisKeyDict.USER_ONLINE + currentUser.getUserId());
-    }
-
     private String describeAndGenerateToken(User user) {
         // 转为序列化对象
         UserInfoBO userInfoBO = new UserInfoBO()
@@ -99,8 +83,6 @@ public class UserFacadeImpl implements UserFacade {
                     new Gson().toJson(userInfoBO),
                     CommonConstant.AUTHORIZATION_TOKEN_EXPIRE_DAY,
                     TimeUnit.DAYS);
-            // 记录用户登录的 token
-            redisTemplate.opsForSet().add(RedisKeyDict.USER_ONLINE + userInfoBO.getUserId(), vitaToken);
         } catch (Exception e) {
             log.error("[登录] token 处理异常, 用户手机号：{}, 邮箱：{}, 原因: {}", user.getPhone(), user.getEmail(), e.getMessage(), e);
             throw new ServiceException(ResultCode.FAIL);

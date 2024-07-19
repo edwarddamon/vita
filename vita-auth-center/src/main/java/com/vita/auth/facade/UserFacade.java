@@ -22,9 +22,4 @@ public interface UserFacade {
      * @return 当前登录用户信息
      */
     UserInfoVO describeUserInfo();
-
-    /**
-     * 退出登录
-     */
-    void logout();
 }
