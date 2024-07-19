@@ -40,7 +40,6 @@ spring:
 interface:
   whitelist:
     - /auth/user/login
-    - /auth/user/logout
 
 # 接口文档配置
 knife4j:
