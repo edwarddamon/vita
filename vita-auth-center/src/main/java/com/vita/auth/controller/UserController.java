@@ -50,4 +50,11 @@ public class UserController {
         return Result.success(userFacade.describeUserInfo());
     }
 
+    @Operation(summary = "退出登录")
+    @GetMapping(value = "/logout")
+    public Result<Void> logout() {
+        userFacade.logout();
+        return Result.success();
+    }
+
 }

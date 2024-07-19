@@ -17,4 +17,9 @@ public class RedisKeyDict {
      * 登录用户的token
      */
     public static final String USER_TOKEN = "user:token:";
+
+    /**
+     * 登录用户的所有token
+     */
+    public static final String USER_ONLINE = "user:online:";
 }
