@@ -9,6 +9,6 @@ import com.vita.common.domain.common.constant.CommonConstant;
  */
 public class SecurityTest {
     public static void main(String[] args) {
-        System.out.println(SecureUtil.md5(CommonConstant.AUTHORIZATION_PREFIX + "123456"));
+        System.out.println(SecureUtil.md5(CommonConstant.AUTHORIZATION_PREFIX + SecureUtil.md5("123456")));
     }
 }
