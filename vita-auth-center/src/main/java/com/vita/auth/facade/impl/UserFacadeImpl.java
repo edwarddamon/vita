@@ -67,7 +67,6 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void logout() {
         UserInfoBO currentUser = TokenUtil.getCurrentUser();
         // 获取当前用户登录的所有登录token
