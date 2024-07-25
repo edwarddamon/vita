@@ -39,4 +39,8 @@ public class UserInfoBO {
      */
     private String email;
 
+    /**
+     * 角色列表
+     */
+    private List<RoleBO> roles;
 }

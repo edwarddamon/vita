@@ -4,8 +4,11 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.vita.auth.converter.RoleConverter;
+import com.vita.auth.entity.Role;
 import com.vita.auth.entity.User;
 import com.vita.auth.facade.UserFacade;
+import com.vita.auth.service.RoleService;
 import com.vita.auth.service.UserService;
 import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.constant.CommonConstant;
@@ -20,12 +23,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 用户相关逻辑处理
@@ -41,6 +45,7 @@ public class UserFacadeImpl implements UserFacade {
     private final StringRedisTemplate redisTemplate;
 
     private final UserService userService;
+    private final RoleService roleService;
 
     @Override
     public String login(LoginDTO loginDTO) {
@@ -51,8 +56,11 @@ public class UserFacadeImpl implements UserFacade {
                 .eq(User.PASSWORD, realPassword));
         validateUserInfo(user);
 
+        // 查询用户关联角色信息
+        List<Role> roles = roleService.describeUserRoles(user.getId());
+
         // 生成token && 存入redis
-        return describeAndGenerateToken(user);
+        return describeAndGenerateToken(user, roles);
     }
 
     @Override
@@ -80,14 +88,15 @@ public class UserFacadeImpl implements UserFacade {
         redisTemplate.delete(RedisKeyDict.USER_ONLINE + currentUser.getUserId());
     }
 
-    private String describeAndGenerateToken(User user) {
+    private String describeAndGenerateToken(User user, List<Role> roles) {
         // 转为序列化对象
         UserInfoBO userInfoBO = new UserInfoBO()
                 .setUserId(user.getId())
                 .setUsername(user.getUsername())
                 .setAvatar(user.getAvatar())
                 .setPhone(user.getPhone())
-                .setEmail(user.getEmail());
+                .setEmail(user.getEmail())
+                .setRoles(roles.stream().map(RoleConverter.INSTANCE::convertDoToBo).collect(Collectors.toList()));
 
         // 生成 token
         String vitaToken = CommonConstant.AUTHORIZATION_PREFIX + UUID.randomUUID().toString(true);

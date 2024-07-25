@@ -40,6 +40,7 @@
         <knife4j.version>4.5.0</knife4j.version>
         <hutool.version>5.8.18</hutool.version>
         <apache.common.version>3.12.0</apache.common.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 
     <!-- 子模块继承之后，提供作用：锁定版本+子module不用写groupId和version  -->
@@ -108,6 +109,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${apache.common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
             </dependency>
 
         </dependencies>

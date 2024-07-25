@@ -4,6 +4,8 @@ package com.vita.auth.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.vita.auth.entity.Role;
 
+import java.util.List;
+
 /**
  * <p>
  * 角色表 服务类
@@ -14,4 +16,5 @@ import com.vita.auth.entity.Role;
  */
 public interface RoleService extends IService<Role> {
 
+    List<Role> describeUserRoles(Long id);
 }
