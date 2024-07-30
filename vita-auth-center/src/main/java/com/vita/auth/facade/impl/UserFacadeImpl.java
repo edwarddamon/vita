@@ -2,8 +2,8 @@ package com.vita.auth.facade.impl;
 
 import cn.hutool.core.lang.UUID;
 import cn.hutool.crypto.SecureUtil;
-import com.alibaba.nacos.shaded.com.google.gson.Gson;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.gson.Gson;
 import com.vita.auth.converter.RoleConverter;
 import com.vita.auth.entity.Role;
 import com.vita.auth.entity.User;
@@ -122,7 +122,8 @@ public class UserFacadeImpl implements UserFacade {
         }
 
         if (DelFlagEnum.DELETED.getFlag().equals(user.getDelFlag())) {
-            throw new ServiceException("账号已注销！");
+            log.warn("[登录] 登陆失败，该账号已逻辑删除，用户信息：{}", new Gson().toJson(user));
+            throw new ServiceException("邮箱或密码错误！");
         }
     }
 }
