@@ -1,7 +1,12 @@
 package com.vita.auth.facade;
 
+import com.vita.common.domain.PageResult;
+import com.vita.common.domain.user.ListUserInfoDTO;
+import com.vita.common.domain.user.ListUserInfoVO;
 import com.vita.common.domain.user.LoginDTO;
 import com.vita.common.domain.user.UserInfoVO;
+
+import java.util.List;
 
 /**
  * @author Edward
@@ -27,4 +32,12 @@ public interface UserFacade {
      * 退出登录
      */
     void logout();
+
+    /**
+     * 用户列表分页
+     *
+     * @param listUserInfoDTO 请求参数
+     * @return 用户列表
+     */
+    PageResult<List<ListUserInfoVO>> listUser(ListUserInfoDTO listUserInfoDTO);
 }

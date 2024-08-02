@@ -3,20 +3,22 @@ package com.vita.auth.facade.impl;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.vita.auth.converter.RoleConverter;
+import com.vita.auth.converter.UserConverter;
 import com.vita.auth.entity.Role;
 import com.vita.auth.entity.User;
 import com.vita.auth.facade.UserFacade;
 import com.vita.auth.service.RoleService;
 import com.vita.auth.service.UserService;
+import com.vita.common.domain.PageResult;
 import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.common.enums.DelFlagEnum;
-import com.vita.common.domain.user.LoginDTO;
-import com.vita.common.domain.user.UserInfoBO;
-import com.vita.common.domain.user.UserInfoVO;
+import com.vita.common.domain.user.*;
 import com.vita.common.exception.ServiceException;
 import com.vita.common.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +88,20 @@ public class UserFacadeImpl implements UserFacade {
         tokenList.forEach(token -> redisTemplate.delete(RedisKeyDict.USER_TOKEN + token));
         // 删除用户在线信息
         redisTemplate.delete(RedisKeyDict.USER_ONLINE + currentUser.getUserId());
+    }
+
+    @Override
+    public PageResult<List<ListUserInfoVO>> listUser(ListUserInfoDTO listUserInfoDTO) {
+        IPage<User> userPage = userService.listUserInfo(new Page<>(listUserInfoDTO.getPageNum(), listUserInfoDTO.getPageSize()), listUserInfoDTO);
+
+        return PageResult.success(
+                userPage.getCurrent(),
+                userPage.getSize(),
+                userPage.getTotal(),
+                userPage.getRecords()
+                        .stream()
+                        .map(UserConverter.INSTANCE::convertDoToVo)
+                        .collect(Collectors.toList()));
     }
 
     private String describeAndGenerateToken(User user, List<Role> roles) {

@@ -1,7 +1,12 @@
 package com.vita.auth.controller;
 
 import com.vita.auth.facade.UserFacade;
+import com.vita.common.annotation.AuthPermission;
+import com.vita.common.domain.PageResult;
 import com.vita.common.domain.Result;
+import com.vita.common.domain.common.enums.RolePermissionCode;
+import com.vita.common.domain.user.ListUserInfoDTO;
+import com.vita.common.domain.user.ListUserInfoVO;
 import com.vita.common.domain.user.LoginDTO;
 import com.vita.common.domain.user.UserInfoVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -43,6 +50,13 @@ public class UserController {
     public Result<Void> logout() {
         userFacade.logout();
         return Result.success();
+    }
+
+    @Operation(summary = "用户列表分页")
+    @PostMapping(value = "/list")
+    @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
+    public PageResult<List<ListUserInfoVO>> listUser(@RequestBody ListUserInfoDTO listUserInfoDTO) {
+        return userFacade.listUser(listUserInfoDTO);
     }
 
 }

@@ -12,4 +12,29 @@
                  JOIN rel_user_role rur ON rri.role_id = rur.role_id
         WHERE sip.need_auth = 1 AND sip.del_flag = 0 AND rur.user_id = 1;
     </select>
+
+    <select id="listUser" resultType="com.vita.auth.entity.User">
+        SELECT
+        id,
+        avatar,
+        username,
+        password,
+        phone,
+        email,
+        del_flag,
+        create_time,
+        update_time
+        FROM inf_user
+        <where>
+            <if test="listUserInfoDTO.email != null and listUserInfoDTO.email != ''">
+                AND email like concat('%', #{listUserInfoDTO.email}, '%')
+            </if>
+            <if test="listUserInfoDTO.phone != null and listUserInfoDTO.phone != ''">
+                AND phone like concat('%', #{listUserInfoDTO.phone}, '%')
+            </if>
+            <if test="listUserInfoDTO.username != null and listUserInfoDTO.username != ''">
+                AND username like concat('%', #{listUserInfoDTO.username}, '%')
+            </if>
+        </where>
+    </select>
 </mapper>

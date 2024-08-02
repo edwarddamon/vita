@@ -1,5 +1,6 @@
 package com.vita.common.domain;
 
+import cn.hutool.core.convert.Convert;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,16 +32,16 @@ public class PageResult<T> extends Result<T> {
      *
      * @return 响应信息
      */
-    public static <T> PageResult<T> success(Integer pageNo, Integer pageSize, Integer total, T data) {
+    public static <T> PageResult<T> success(Long pageNum, Long pageSize, Long total, T data) {
         PageResult<T> pageResult = new PageResult<>();
 
         pageResult.setSuccess(Boolean.TRUE);
         pageResult.setCode(ResultCode.SUCCESS.getCode());
         pageResult.setMessage(ResultCode.SUCCESS.getMessage());
         pageResult.setData(data);
-        pageResult.setPageNum(pageNo);
-        pageResult.setPageSize(pageSize);
-        pageResult.setTotal(total);
+        pageResult.setPageNum(Convert.toInt(pageNum));
+        pageResult.setPageSize(Convert.toInt(pageSize));
+        pageResult.setTotal(Convert.toInt(total));
 
         return pageResult;
     }
