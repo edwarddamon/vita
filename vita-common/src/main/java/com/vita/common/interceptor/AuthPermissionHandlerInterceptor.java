@@ -1,15 +1,20 @@
 package com.vita.common.interceptor;
 
+import com.google.gson.Gson;
 import com.vita.common.annotation.AuthPermission;
+import com.vita.common.domain.Result;
+import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.enums.RolePermissionCode;
 import com.vita.common.domain.user.RoleBO;
 import com.vita.common.utils.TokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 /**
  * 接口权限 拦截器
  */
+@Slf4j
 public class AuthPermissionHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -52,6 +58,18 @@ public class AuthPermissionHandlerInterceptor implements HandlerInterceptor {
             }
         }
 
+        // 未通过 - 提示信息返回前端
+        returnJson(response);
         return false;
+    }
+
+    private void returnJson(HttpServletResponse response) {
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=utf-8");
+        try (PrintWriter writer = response.getWriter()) {
+            writer.print(new Gson().toJson(Result.fail(ResultCode.NO_INTERFACE_PERMISSION.getCode(), "权限不足")));
+        } catch (Exception e) {
+            log.error("[接口权限校验拦截] 拦截器返回信息异常，原因：{}", e.getMessage(), e);
+        }
     }
 }
