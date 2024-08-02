@@ -1,2 +1,2 @@
 com.vita.common.config.CommonAutoConfiguration
-com.vita.common.config.TraceIdAutoConfiguration
+com.vita.common.config.VitaAutoConfiguration
