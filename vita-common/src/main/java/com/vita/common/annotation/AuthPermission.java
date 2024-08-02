@@ -7,9 +7,9 @@ import java.lang.annotation.*;
 /**
  * 接口权限注解
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface AuthPermission {
 
     /**
