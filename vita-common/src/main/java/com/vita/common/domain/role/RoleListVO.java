@@ -1,4 +1,4 @@
-package com.vita.common.domain.user;
+package com.vita.common.domain.role;
 
 import lombok.Data;
 

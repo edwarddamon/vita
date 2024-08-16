@@ -3,6 +3,9 @@ package com.vita.auth.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vita.auth.entity.UserRoleRel;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +18,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserRoleRelMapper extends BaseMapper<UserRoleRel> {
 
+    void deleteUserRoleRel(@Param("userId") Long userId);
+
+    void insertBatch(@Param("associateList") List<UserRoleRel> associateList);
 }

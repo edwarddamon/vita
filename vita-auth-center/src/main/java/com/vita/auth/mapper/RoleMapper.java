@@ -18,5 +18,5 @@ import java.util.List;
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
 
-    List<Role> describeUserRoles(@Param("id") Long id);
+    List<Role> describeUserRoles(@Param("userId") Long id);
 }

@@ -1,10 +1,10 @@
 package com.vita.common.domain.user;
 
+import com.vita.common.domain.role.RoleBO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Edward

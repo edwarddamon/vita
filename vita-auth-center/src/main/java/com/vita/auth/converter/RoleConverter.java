@@ -1,8 +1,8 @@
 package com.vita.auth.converter;
 
 import com.vita.auth.entity.Role;
-import com.vita.common.domain.user.RoleBO;
-import com.vita.common.domain.user.RoleListVO;
+import com.vita.common.domain.role.RoleBO;
+import com.vita.common.domain.role.RoleListVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

@@ -5,7 +5,7 @@ import com.vita.common.annotation.AuthPermission;
 import com.vita.common.domain.Result;
 import com.vita.common.domain.ResultCode;
 import com.vita.common.domain.common.enums.RolePermissionCode;
-import com.vita.common.domain.user.RoleBO;
+import com.vita.common.domain.role.RoleBO;
 import com.vita.common.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;

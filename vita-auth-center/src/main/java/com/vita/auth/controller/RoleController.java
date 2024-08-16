@@ -6,13 +6,13 @@ import com.vita.auth.service.RoleService;
 import com.vita.common.annotation.AuthPermission;
 import com.vita.common.domain.Result;
 import com.vita.common.domain.common.enums.RolePermissionCode;
-import com.vita.common.domain.user.RoleListVO;
+import com.vita.common.domain.role.RoleAssociateDTO;
+import com.vita.common.domain.role.RoleListVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,5 +39,13 @@ public class RoleController {
     public Result<List<RoleListVO>> roleList() {
         List<Role> roleList = roleService.list();
         return Result.success(roleList.stream().map(RoleConverter.INSTANCE::convertDoToVo).collect(Collectors.toList()));
+    }
+
+    @Operation(summary = "关联角色")
+    @PostMapping(value = "/associate")
+    @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
+    public Result<Void> associateRole(@RequestBody @Validated RoleAssociateDTO roleAssociateDTO) {
+        roleService.associateRole(roleAssociateDTO);
+        return Result.success();
     }
 }
