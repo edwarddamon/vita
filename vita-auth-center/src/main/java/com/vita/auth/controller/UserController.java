@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@Tag(name = "user", description = "用户相关")
+@Tag(name = "用户", description = "用户相关")
 public class UserController {
 
     private final UserFacade userFacade;

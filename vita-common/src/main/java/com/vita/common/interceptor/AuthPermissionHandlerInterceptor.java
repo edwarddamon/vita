@@ -59,14 +59,15 @@ public class AuthPermissionHandlerInterceptor implements HandlerInterceptor {
         }
 
         // 未通过 - 提示信息返回前端
-        returnJson(response);
+        returnJson(response, userRoles, needRoles);
         return false;
     }
 
-    private void returnJson(HttpServletResponse response) {
+    private void returnJson(HttpServletResponse response, List<RoleBO> userRoles, RolePermissionCode[] needRoles) {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try (PrintWriter writer = response.getWriter()) {
+            log.warn("[接口权限校验拦截] 当前用户权限不足，当前用户角色信息：{}，所需角色信息：{}", new Gson().toJson(userRoles), new Gson().toJson(needRoles));
             writer.print(new Gson().toJson(Result.fail(ResultCode.NO_INTERFACE_PERMISSION.getCode(), "权限不足")));
         } catch (Exception e) {
             log.error("[接口权限校验拦截] 拦截器返回信息异常，原因：{}", e.getMessage(), e);
