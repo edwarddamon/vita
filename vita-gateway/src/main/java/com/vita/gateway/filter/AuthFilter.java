@@ -52,7 +52,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         }
 
         // 校验用户权限
-        UserInfoBO userInfoBO = validateUserAUth(request, antPathMatcher);
+        UserInfoBO userInfoBO = validateUserAuth(request);
 
         // token 续期
         expireToken(request);
@@ -78,7 +78,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
                 TimeUnit.DAYS);
     }
 
-    private UserInfoBO validateUserAUth(ServerHttpRequest request, AntPathMatcher antPathMatcher) {
+    private UserInfoBO validateUserAuth(ServerHttpRequest request) {
 
         // 校验用户是否登录
         final List<String> headerToken = request.getHeaders().get(HttpHeaders.AUTHORIZATION);
