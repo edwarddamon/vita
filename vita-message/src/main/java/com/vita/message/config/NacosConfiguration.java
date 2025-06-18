@@ -24,7 +24,7 @@ public class NacosConfiguration {
     private Environment env;
 
     @Bean
-    @ConditionalOnProperty(value = "spring.cloud.nacos.discovery.enabled", matchIfMissing = true)
+    @ConditionalOnProperty(value = "spring.cloud.nacos.discovery.enabled", havingValue = "true")
     public NacosDiscoveryProperties nacosProperties() {
         NacosDiscoveryProperties nacosDiscoveryProperties = new NacosDiscoveryProperties();
         Map<String, String> metadata = nacosDiscoveryProperties.getMetadata();
