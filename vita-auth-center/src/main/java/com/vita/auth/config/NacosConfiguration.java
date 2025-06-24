@@ -2,7 +2,6 @@ package com.vita.auth.config;
 
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -24,7 +23,6 @@ public class NacosConfiguration {
     private Environment env;
 
     @Bean
-    @ConditionalOnProperty(value = "spring.cloud.nacos.discovery.enabled", havingValue = "true")
     public NacosDiscoveryProperties nacosProperties() {
         NacosDiscoveryProperties nacosDiscoveryProperties = new NacosDiscoveryProperties();
         Map<String, String> metadata = nacosDiscoveryProperties.getMetadata();
