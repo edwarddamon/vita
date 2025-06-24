@@ -117,7 +117,7 @@ public class UserFacadeImpl implements UserFacade {
         // 生成 token
         String vitaToken = CommonConstant.AUTHORIZATION_PREFIX + UUID.randomUUID().toString(true);
         try {
-            // 将用户信息和接口权限存入redis
+            // 将用户信息和角色信息存入redis
             redisTemplate.opsForValue().set(
                     RedisKeyDict.USER_TOKEN + vitaToken,
                     new Gson().toJson(userInfoBO),
