@@ -7,10 +7,11 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx512m
+#      - JAVA_OPTS=-Xms256m -Xmx512m
       - ACTIVE_PROFILE=test
     volumes:
-      - /opt/vita/logs:/opt/vita/logs/
+      - /opt/vita/vita-gateway/logs:/opt/vita/logs/
+      - /opt/vita/vita-gateway/dumps:/opt/vita/dumps/
     logging:
       driver: "json-file" # 默认的文件日志驱动
       options:
