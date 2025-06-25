@@ -25,10 +25,11 @@ services:
     ports:
       - "8033:8033"
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx512m
+#      - JAVA_OPTS=-Xms256m -Xmx512m
       - ACTIVE_PROFILE=test
     volumes:
-      - /opt/vita/logs:/opt/vita/logs/
+      - /opt/vita/vita-auth-center/logs:/opt/vita/logs/
+      - /opt/vita/vita-auth-center/dumps:/opt/vita/dumps/
     logging:
       driver: "json-file"
       options:
@@ -42,10 +43,29 @@ services:
     ports:
       - "8023:8023"
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx512m
+#      - JAVA_OPTS=-Xms256m -Xmx512m
       - ACTIVE_PROFILE=test
     volumes:
-      - /opt/vita/logs:/opt/vita/logs/
+      - /opt/vita/vita-api/logs:/opt/vita/logs/
+      - /opt/vita/vita-api/dumps:/opt/vita/dumps/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"
+
+  vita-message:
+    image: xxxxx/vita-message:1.0.0
+    container_name: vita-message
+    restart: always
+    ports:
+      - "8043:8043"
+    environment:
+      #      - JAVA_OPTS=-Xms256m -Xmx512m
+      - ACTIVE_PROFILE=test
+    volumes:
+      - /opt/vita/vita-message/logs:/opt/vita/logs/
+      - /opt/vita/vita-message/dumps:/opt/vita/dumps/
     logging:
       driver: "json-file"
       options:
