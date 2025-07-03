@@ -24,8 +24,10 @@ public class ThreadConfiguration {
     @Bean(value = "commonTaskExecutor")
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(8);
+        // 获取服务器当前的cpu核心数（若为双核，则为真实cpu总线程数，比如：4核双线程 = 8）
+        int coreSize = Runtime.getRuntime().availableProcessors();
+        executor.setCorePoolSize(coreSize);
+        executor.setMaxPoolSize(coreSize * 2);
         executor.setQueueCapacity(1000);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
