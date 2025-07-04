@@ -38,3 +38,12 @@ knife4j:
 logging:
   level:
     root: debug
+
+# 通用线程池
+vita:
+  common:
+    task-executor:
+      core-pool-size: 4
+      max-pool-size: 8
+      queue-capacity: 100
+      keep-alive-seconds: 300
