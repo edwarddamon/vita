@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class EmailFacadeImpl implements EmailFacade {
 
-    @Resource(name = "commonTaskExecutor")
+    @Resource(name = "vitaCommonTaskExecutor")
     private ThreadPoolTaskExecutor commonTaskExecutor;
 
     private final MailFeignClient mailFeignClient;
