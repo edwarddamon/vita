@@ -38,7 +38,7 @@ public class ThreadConfiguration {
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        // 获取服务器当前的cpu核心数（若为双核，则为真实cpu总线程数，比如：4核双线程 = 8）
+        // 获取服务器当前的cpu核心数（若为双核，则为真实cpu总线程数，比如：4核双线程CPU = 8）
         int coreSize = Runtime.getRuntime().availableProcessors();
         executor.setCorePoolSize(Objects.nonNull(taskExecutorProperties.getCorePoolSize()) ? taskExecutorProperties.getCorePoolSize() : coreSize);
         executor.setMaxPoolSize(Objects.nonNull(taskExecutorProperties.getMaxPoolSize()) ? taskExecutorProperties.getMaxPoolSize() : coreSize * 2);
