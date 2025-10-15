@@ -2,6 +2,7 @@ services:
   nacos:
     image: nacos/nacos-server:v2.4.0
     container_name: nacos_2.4.0
+    restart: always
     ports:
       - 8828:8848
       - 9828:9848
@@ -22,17 +23,48 @@ services:
       MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
     volumes:
       - /opt/nacos/logs/:/home/nacos/logs
+    privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+    logging:
+      driver: "json-file" # 默认的文件日志驱动
+      options:
+        max-size: "50m"
+        max-file: "1"
 
   redis_5.0:
     image: redis:5.0
     container_name: redis_5.0
-    restart: on-failure
+    restart: always
+    ports:
+      - "6399:6379"
     environment:
-      - TZ=Asia/Shanghai
+      TZ: Asia/Shanghai
     volumes:
       - /opt/redis/data:/data
       - /opt/redis/conf/redis.conf:/etc/redis/redis.conf
-    ports:
-      - "6399:6379"
     command: /bin/sh -c "redis-server /etc/redis/redis.conf --requirepass changeme_redis"
     privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+    logging:
+      driver: "json-file" # 默认的文件日志驱动
+      options:
+        max-size: "50m"
+        max-file: "1"
+
+  mysql_8.0.28:
+    image: mysql:8.0.28
+    container_name: mysql_8.0.28
+    restart: always
+    ports:
+      - "3366:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 'changeme_mysql_root'
+    volumes:
+      - /opt/mysql/conf:/etc/mysql/conf.d
+      - /opt/mysql/data:/var/lib/mysql
+      - /opt/mysql/logs:/var/log/mysql
+    privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+    logging:
+      driver: "json-file" # 默认的文件日志驱动
+      options:
+        max-size: "50m"
+        max-file: "1"
