@@ -29,7 +29,7 @@ jobs:
     env:
       TCR_REGISTRY: ${{ secrets.URL_PREFIX }}
       TCR_REPO: "vita_namespace"
-      TCR_IMAGE: ${{ TCR_REGISTRY }}/${{ TCR_REPO }}/${{ github.event.inputs.service }}:${{ github.sha }}
+      TCR_IMAGE: ${{ secrets.URL_PREFIX }}/${{ TCR_REPO }}/${{ github.event.inputs.service }}:${{ github.sha }}
 
     steps:
     # 1. 检出代码（使用指定分支）
@@ -61,7 +61,7 @@ jobs:
     - name: Build Docker image for selected service
       run: |
         docker build -t ${{ env.TCR_IMAGE }} -f microservices/${{ github.event.inputs.service }}/Dockerfile .
-        echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ env.TCR_REGISTRY }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
+        echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ secrets.URL_PREFIX }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
 
     # 6. 推送镜像到腾讯云
     - name: Push Docker image to TCR
