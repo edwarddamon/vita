@@ -84,16 +84,16 @@ jobs:
             mvn clean package -DskipTests
             
             # 构建Docker镜像
-            docker build -t ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }} .
+            docker build -t ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} .
             
             # 登录到阿里云容器镜像
             echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ secrets.URL_PREFIX }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
             
             # 推送镜像
-            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }}
+            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }}
             
             # 推送latest标签
-            docker tag ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }} ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
+            docker tag ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
             docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
             
             echo "✅ Successfully deployed $SERVICE to ${{ github.event.inputs.branch }}"
