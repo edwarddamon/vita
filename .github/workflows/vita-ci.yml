@@ -29,7 +29,7 @@ jobs:
     env:
       TCR_REGISTRY: ${{ secrets.URL_PREFIX }}
       TCR_REPO: "vita_namespace"
-      TCR_IMAGE: ${{ env.TCR_REGISTRY }}/${{ TCR_REPO }}/${{ github.event.inputs.service }}:${{ github.sha }}
+      TCR_IMAGE: ${{ TCR_REGISTRY }}/${{ TCR_REPO }}/${{ github.event.inputs.service }}:${{ github.sha }}
 
     steps:
     # 1. 检出代码（使用指定分支）
