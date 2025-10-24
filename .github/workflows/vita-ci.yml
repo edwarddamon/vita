@@ -63,7 +63,7 @@ jobs:
         if: ${{ contains(env.DEPLOY_SERVICES, 'all') == false }}
         run: |
           for SERVICE in ${{ env.DEPLOY_SERVICES }}; do
-            if [ ! -d "services/$SERVICE" ]; then
+            if [ ! -d "$SERVICE" ]; then
               echo "❌ Service $SERVICE not found in services/ directory"
               exit 1
             fi
