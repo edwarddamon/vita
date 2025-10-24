@@ -1,70 +1,111 @@
-name: VITA CI
+name: Manual Multi-Service CI/CD
 
 on:
   workflow_dispatch:
     inputs:
       branch:
-        description: '选择需要compile、build和push的分支：'
+        description: '选择部署分支'
         required: true
-        default: 'master'
         type: choice
         options:
           - master
-          - develop*
           - release*
-      service:
-        description: 'Microservice to build and deploy'
+          - develop-1.0.0
+      services:
+        description: '选择要部署的服务 (多选)'
         required: true
-        default: 'user-service'
         type: choice
         options:
+          - all
           - vita-gateway
           - vita-api
           - vita-auth-center
           - vita-message
+        multi: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      TCR_REGISTRY: ${{ secrets.URL_PREFIX }}
-      TCR_REPO: "vita_namespace"
-      TCR_IMAGE: $TCR_REGISTRY/$TCR_REPO/${{ github.event.inputs.service }}:${{ github.sha }}
-
     steps:
-    # 1. 检出代码（使用指定分支）
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.inputs.branch }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
-    # 2. 设置 JDK 8
-    - name: Set up JDK 8
-      uses: actions/setup-java@v3
-      with:
-        java-version: '8'
-        distribution: 'temurin'
+      - name: Set environment variables
+        id: env-setup
+        run: |
+          # 1. 设置分支类型
+          if [[ "${{ github.event.inputs.branch }}" =~ ^develop/ ]]; then
+            echo "BRANCH_TYPE=dev" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.branch }}" =~ ^release/ ]]; then
+            echo "BRANCH_TYPE=prod" >> $GITHUB_ENV
+          else
+            echo "BRANCH_TYPE=unknown" >> $GITHUB_ENV
+          fi
 
-    # 3. 缓存 Maven 依赖（针对指定微服务）
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('microservices/${{ github.event.inputs.service }}/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2-
+          # 2. 设置要部署的服务
+          if [[ "${{ github.event.inputs.services }}" == "all" ]]; then
+            echo "DEPLOY_SERVICES=vita-gateway vita-api vita-auth-center vita-message" >> $GITHUB_ENV
+          else
+            # 将多选服务转换为空格分隔的字符串
+            SERVICES=$(echo "${{ github.event.inputs.services }}" | tr ',' ' ')
+            echo "DEPLOY_SERVICES=$SERVICES" >> $GITHUB_ENV
+          fi
 
-    # 4. 构建指定微服务
-    - name: Build selected microservice
-      run: mvn -B clean package -DskipTests -f microservices/${{ github.event.inputs.service }}/pom.xml
+          # 3. 显示选择信息
+          echo "✅ Selected Branch: ${{ github.event.inputs.branch }}"
+          echo "✅ Branch Type: ${{ env.BRANCH_TYPE }}"
+          echo "✅ Selected Services: ${{ env.DEPLOY_SERVICES }}"
+          echo "ℹ️ Note: Services will be built and deployed in this order"
 
-    # 5. 构建 Docker 镜像（针对指定微服务）
-    - name: Build Docker image for selected service
-      run: |
-        docker build -t ${{ env.TCR_IMAGE }} -f microservices/${{ github.event.inputs.service }}/Dockerfile .
-        echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ secrets.URL_PREFIX }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
+      - name: Validate services
+        if: ${{ contains(env.DEPLOY_SERVICES, 'all') == false }}
+        run: |
+          for SERVICE in ${{ env.DEPLOY_SERVICES }}; do
+            if [ ! -d "services/$SERVICE" ]; then
+              echo "❌ Service $SERVICE not found in services/ directory"
+              exit 1
+            fi
+          done
 
-    # 6. 推送镜像到腾讯云
-    - name: Push Docker image to TCR
-      run: |
-        docker tag ${{ env.TCR_IMAGE }} ${{ env.TCR_IMAGE }}
-        docker push ${{ env.TCR_IMAGE }}
+      - name: Build and deploy
+        run: |
+          # 获取要部署的服务列表
+          SERVICES_LIST=$(echo "${{ env.DEPLOY_SERVICES }}" | tr ' ' '\n')
+          
+          for SERVICE in $SERVICES_LIST; do
+            echo "🚀 Building and deploying $SERVICE for branch ${{ github.event.inputs.branch }}"
+            
+            # 进入服务目录
+            cd $SERVICE
+            
+            # 构建服务
+            mvn clean package -DskipTests
+            
+            # 构建Docker镜像
+            docker build -t ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }} .
+            
+            # 登录到阿里云容器镜像
+            echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ secrets.URL_PREFIX }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
+            
+            # 推送镜像
+            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }}
+            
+            # 推送latest标签
+            docker tag ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha:0:7 }} ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
+            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
+            
+            echo "✅ Successfully deployed $SERVICE to ${{ github.event.inputs.branch }}"
+            cd ../..
+          done
+
+      - name: Show summary
+        if: always()
+        run: |
+          echo "📊 Deployment Summary"
+          echo "Branch: ${{ github.event.inputs.branch }}"
+          echo "Branch Type: ${{ env.BRANCH_TYPE }}"
+          echo "Deployed Services: ${{ env.DEPLOY_SERVICES }}"
+          echo "Status: ${{ job.status }}"
+          echo "🔗 Build Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
