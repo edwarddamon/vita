@@ -69,6 +69,16 @@ jobs:
             fi
           done
 
+      - name: Build common package (if exists)
+        run: |
+          if [ -d "vita-common" ]; then
+            echo "📦 Building common package (required for all services)"
+            cd $GITHUB_WORKSPACE
+            mvn clean install -pl vita-common -am -DskipTests
+          else
+            echo "⚠️ No common package found. Proceeding without common build."
+          fi
+
       - name: Build and deploy
         run: |
           # 获取要部署的服务列表
