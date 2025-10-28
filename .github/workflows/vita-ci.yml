@@ -74,7 +74,7 @@ jobs:
           if [ -d "vita-common" ]; then
             echo "📦 Building common package (required for all services)"
             cd $GITHUB_WORKSPACE
-            mvn clean install -pl vita-common -am -DskipTests
+            mvn -Dreversion=1.0.0 clean install -pl vita-common -am -DskipTests
           else
             echo "⚠️ No common package found. Proceeding without common build."
           fi
