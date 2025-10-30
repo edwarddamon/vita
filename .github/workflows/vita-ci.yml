@@ -1,4 +1,4 @@
-name: Manual Multi-Service CI/CD
+name: vita ci devops
 
 on:
   workflow_dispatch:
@@ -27,12 +27,12 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Set environment variables
+      - name: Set CI Variables
         id: env-setup
         run: |
           # 1. 设置分支类型
@@ -59,7 +59,7 @@ jobs:
           echo "✅ Selected Services: ${{ env.DEPLOY_SERVICES }}"
           echo "ℹ️ Note: Services will be built and deployed in this order"
 
-      - name: Validate services
+      - name: Validate Services
         if: ${{ contains(env.DEPLOY_SERVICES, 'all') == false }}
         run: |
           for SERVICE in ${{ env.DEPLOY_SERVICES }}; do
@@ -69,7 +69,15 @@ jobs:
             fi
           done
 
-      - name: Build common package (if exists)
+      - name: Check Env Variables
+        run: |
+          echo "The URL_PREFIX is: $URL_PREFIX"
+        env:
+          URL_PREFIX: ${{ secrets.URL_PREFIX }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+
+      - name: Build Common Package (if exists)
         run: |
           if [ -d "vita-common" ]; then
             echo "📦 Building common package (required for all services)"
@@ -79,7 +87,7 @@ jobs:
             echo "⚠️ No common package found. Proceeding without common build."
           fi
 
-      - name: Build and deploy
+      - name: Build And Deploy
         run: |
           # 获取要部署的服务列表
           SERVICES_LIST=$(echo "${{ env.DEPLOY_SERVICES }}" | tr ' ' '\n')
@@ -94,23 +102,19 @@ jobs:
             mvn clean package -DskipTests
             
             # 构建Docker镜像
-            docker build -t ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} .
+            docker build -t $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }} .
             
-            # 登录到阿里云容器镜像
-            echo "${{ secrets.TCR_PASSWORD }}" | docker login ${{ secrets.URL_PREFIX }} -u ${{ secrets.TCR_USERNAME }} --password-stdin
+            # 登录到腾讯云容器镜像
+            docker login $URL_PREFIX -u $USERNAME --password-stdin
             
             # 推送镜像
-            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }}
+            docker push $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }}
             
-            # 推送latest标签
-            docker tag ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
-            docker push ${{ secrets.URL_PREFIX }}/vita_namespace/$SERVICE:latest
-            
-            echo "✅ Successfully deployed $SERVICE to ${{ github.event.inputs.branch }}"
+            echo "✅ Successfully Deployed $SERVICE to ${{ github.event.inputs.branch }}"
             cd ../..
           done
 
-      - name: Show summary
+      - name: Show Summary
         if: always()
         run: |
           echo "📊 Deployment Summary"
