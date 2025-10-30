@@ -82,9 +82,9 @@ jobs:
       - name: Build And Deploy
         run: |
           # 设置镜像仓库相关变量
-          URL_PREFIX: "registry.example.com"
-          USERNAME: "100014795141"
-          PASSWORD: "!qaztencent"
+          URL_PREFIX = "registry.example.com"
+          USERNAME = "100014795141"
+          PASSWORD = "!qaztencent"
           
           # 获取要部署的服务列表
           SERVICES_LIST=$(echo "${{ env.DEPLOY_SERVICES }}" | tr ' ' '\n')
@@ -100,7 +100,7 @@ jobs:
             
             # 构建Docker镜像
             echo "URL_PREFIX: $URL_PREFIX"
-            docker build -t $URL_PREFIX}/vita_namespace/$SERVICE:${{ github.sha }} .
+            docker build -t $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }} .
             
             # 登录到腾讯云容器镜像
             echo $PASSWORD | docker login $URL_PREFIX --username=$USERNAME --password-stdin
