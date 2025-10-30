@@ -7,6 +7,8 @@
     <groupId>com.vita</groupId>
     <artifactId>vita</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
+
     <modules>
         <module>vita-common</module>
         <module>vita-gateway</module>
@@ -14,8 +16,6 @@
         <module>vita-auth-center</module>
         <module>vita-message</module>
     </modules>
-
-    <packaging>pom</packaging>
 
     <!--parent作用：Java版本、源码的文件编码方式、依赖管理打包、支持动态识别资源、识别插件配置、识别不同的配置-->
     <parent>
