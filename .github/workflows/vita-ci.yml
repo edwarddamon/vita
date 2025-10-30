@@ -63,8 +63,8 @@ jobs:
 
           # 3. 显示选择信息
           echo "✅ Selected Branch: ${{ github.event.inputs.branch }}"
-          echo "✅ Branch Type: $BRANCH_TYPE"
-          echo "✅ Selected Services: DEPLOY_SERVICES"
+          echo "✅ Branch Type: ${{env.BRANCH_TYPE}}"
+          echo "✅ Selected Services: ${{env.DEPLOY_SERVICES}} "
           echo "ℹ️ Note: Services will be built and deployed in this order"
 
       - name: Validate Services
@@ -102,6 +102,7 @@ jobs:
             mvn clean package -DskipTests
             
             # 构建Docker镜像
+            echo "URL_PREFIX: ${{ env.URL_PREFIX }}"
             docker build -t ${{ env.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} .
             
             # 登录到腾讯云容器镜像
