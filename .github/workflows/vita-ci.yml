@@ -1,0 +1,123 @@
+name: vita ci devops
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '选择部署分支'
+        required: true
+        type: choice
+        options:
+          - master
+          - release*
+          - develop-1.0.0
+      services:
+        description: '选择要部署的服务 (多选)'
+        required: true
+        type: choice
+        options:
+          - all
+          - vita-gateway
+          - vita-api
+          - vita-auth-center
+          - vita-message
+        multi: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Set CI Variables
+        id: env-setup
+        run: |
+          # 1. 设置分支类型
+          if [[ "${{ github.event.inputs.branch }}" =~ ^develop ]]; then
+            echo "BRANCH_TYPE=dev" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.branch }}" =~ ^release ]]; then
+            echo "BRANCH_TYPE=prod" >> $GITHUB_ENV
+          else
+            echo "BRANCH_TYPE=unknown" >> $GITHUB_ENV
+          fi
+
+          # 2. 设置要部署的服务
+          if [[ "${{ github.event.inputs.services }}" == "all" ]]; then
+            echo "DEPLOY_SERVICES=vita-gateway vita-api vita-auth-center vita-message" >> $GITHUB_ENV
+          else
+            # 将多选服务转换为空格分隔的字符串
+            SERVICES=$(echo "${{ github.event.inputs.services }}" | tr ',' ' ')
+            echo "DEPLOY_SERVICES=$SERVICES" >> $GITHUB_ENV
+          fi
+
+          # 3. 显示选择信息
+          echo "✅ Selected Branch: ${{ github.event.inputs.branch }}"
+          echo "✅ Branch Type: ${{env.BRANCH_TYPE}}"
+          echo "✅ Selected Services: ${{env.DEPLOY_SERVICES}} "
+          echo "ℹ️ Note: Services will be built and deployed in this order"
+
+      - name: Validate Services
+        if: ${{ contains(env.DEPLOY_SERVICES, 'all') == false }}
+        run: |
+          for SERVICE in ${{ env.DEPLOY_SERVICES }}; do
+            if [ ! -d "$SERVICE" ]; then
+              echo "❌ Service $SERVICE not found in services/ directory"
+              exit 1
+            fi
+          done
+
+      - name: Build Common Package (if exists)
+        run: |
+          if [ -d "vita-common" ]; then
+            echo "📦 Building common package (required for all services)"
+            cd $GITHUB_WORKSPACE
+            mvn clean install -pl vita-common -am -DskipTests
+          else
+            echo "⚠️ No common package found. Proceeding without common build."
+          fi
+
+      - name: Build And Deploy
+        run: |
+          # 设置镜像仓库相关变量
+          URL_PREFIX="registry.example.com"
+          USERNAME="100014795141"
+          PASSWORD="!qaztencent"
+          
+          # 获取要部署的服务列表
+          SERVICES_LIST=$(echo "${{ env.DEPLOY_SERVICES }}" | tr ' ' '\n')
+          
+          for SERVICE in $SERVICES_LIST; do
+            echo "🚀 Building and deploying $SERVICE for branch ${{ github.event.inputs.branch }}"
+            
+            # 进入服务目录
+            cd $SERVICE
+            
+            # 构建服务
+            mvn clean package -DskipTests
+            
+            # 构建Docker镜像
+            echo "URL_PREFIX: $URL_PREFIX"
+            docker build -t $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }} .
+            
+            # 登录到腾讯云容器镜像
+            echo $PASSWORD | docker login $URL_PREFIX --username=$USERNAME --password-stdin
+            
+            # 推送镜像
+            docker push $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }}
+            
+            echo "✅ Successfully Deployed $SERVICE to ${{ github.event.inputs.branch }}"
+            cd ../..
+          done
+
+      - name: Show Summary
+        if: always()
+        run: |
+          echo "📊 Deployment Summary"
+          echo "Branch: ${{ github.event.inputs.branch }}"
+          echo "Branch Type: ${{ env.BRANCH_TYPE }}"
+          echo "Deployed Services: ${{ env.DEPLOY_SERVICES }}"
+          echo "Status: ${{ job.status }}"
+          echo "🔗 Build Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
