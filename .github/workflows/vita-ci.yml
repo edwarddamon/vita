@@ -32,13 +32,21 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
+      - name: Set Env Variables
+        env:
+          URL_PREFIX: "registry.example.com"
+          USERNAME: "100014795141"
+          PASSWORD: "!qaztencent"
+        run: |
+          echo "The env.URL_PREFIX is: $URL_PREFIX"
+
       - name: Set CI Variables
         id: env-setup
         run: |
           # 1. 设置分支类型
-          if [[ "${{ github.event.inputs.branch }}" =~ ^develop/ ]]; then
+          if [[ "${{ github.event.inputs.branch }}" =~ ^develop ]]; then
             echo "BRANCH_TYPE=dev" >> $GITHUB_ENV
-          elif [[ "${{ github.event.inputs.branch }}" =~ ^release/ ]]; then
+          elif [[ "${{ github.event.inputs.branch }}" =~ ^release ]]; then
             echo "BRANCH_TYPE=prod" >> $GITHUB_ENV
           else
             echo "BRANCH_TYPE=unknown" >> $GITHUB_ENV
@@ -69,17 +77,6 @@ jobs:
             fi
           done
 
-      - name: Check Env Variables
-        env:
-          URL_PREFIX: ${{ secrets.URL_PREFIX }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PASSWORD: ${{ secrets.PASSWORD }}
-        run: |
-          echo "The URL_PREFIX is: ${{ secrets.URL_PREFIX }}"
-          echo "The env.URL_PREFIX is: $URL_PREFIX"
-          echo "The TCR_REGISTRY is: ${{ secrets.TCR_REGISTRY }}"
-          echo "The TCR_REGISTRY.URL_PREFIX is: ${{ secrets.TCR_REGISTRY.URL_PREFIX }}"
-
       - name: Build Common Package (if exists)
         run: |
           if [ -d "vita-common" ]; then
@@ -108,7 +105,7 @@ jobs:
             docker build -t $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }} .
             
             # 登录到腾讯云容器镜像
-            docker login $URL_PREFIX -u $USERNAME --password-stdin
+            echo $PASSWORD | docker login $URL_PREFIX --username=$USERNAME --password-stdin
             
             # 推送镜像
             docker push $URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }}
