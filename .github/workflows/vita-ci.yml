@@ -70,14 +70,15 @@ jobs:
           done
 
       - name: Check Env Variables
-        run: |
-          echo "The URL_PREFIX is: ${{ secrets.URL_PREFIX }}"
-          echo "The TCR_REGISTRY is: ${{ secrets.TCR_REGISTRY }}"
-          echo "The TCR_REGISTRY.URL_PREFIX is: ${{ secrets.TCR_REGISTRY.URL_PREFIX }}"
         env:
           URL_PREFIX: ${{ secrets.URL_PREFIX }}
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          echo "The URL_PREFIX is: ${{ secrets.URL_PREFIX }}"
+          echo "The env.URL_PREFIX is: $URL_PREFIX"
+          echo "The TCR_REGISTRY is: ${{ secrets.TCR_REGISTRY }}"
+          echo "The TCR_REGISTRY.URL_PREFIX is: ${{ secrets.TCR_REGISTRY.URL_PREFIX }}"
 
       - name: Build Common Package (if exists)
         run: |
