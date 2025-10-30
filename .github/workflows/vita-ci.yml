@@ -32,14 +32,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Set Env Variables
-        env:
-          URL_PREFIX: "registry.example.com"
-          USERNAME: "100014795141"
-          PASSWORD: "!qaztencent"
-        run: |
-          echo "The env.URL_PREFIX is: $URL_PREFIX"
-
       - name: Set CI Variables
         id: env-setup
         run: |
@@ -89,6 +81,11 @@ jobs:
 
       - name: Build And Deploy
         run: |
+          # 设置镜像仓库相关变量
+          URL_PREFIX: "registry.example.com"
+          USERNAME: "100014795141"
+          PASSWORD: "!qaztencent"
+          
           # 获取要部署的服务列表
           SERVICES_LIST=$(echo "${{ env.DEPLOY_SERVICES }}" | tr ' ' '\n')
           
@@ -102,14 +99,14 @@ jobs:
             mvn clean package -DskipTests
             
             # 构建Docker镜像
-            echo "URL_PREFIX: ${{ env.URL_PREFIX }}"
-            docker build -t ${{ env.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }} .
+            echo "URL_PREFIX: $URL_PREFIX"
+            docker build -t $URL_PREFIX}/vita_namespace/$SERVICE:${{ github.sha }} .
             
             # 登录到腾讯云容器镜像
-            echo ${{ env.PASSWORD }} | docker login ${{ env.URL_PREFIX }} --username=${{ env.USERNAME }} --password-stdin
+            echo $PASSWORD | docker login $URL_PREFIX --username=$USERNAME --password-stdin
             
             # 推送镜像
-            docker push ${{ env.URL_PREFIX }}/vita_namespace/$SERVICE:${{ github.sha }}
+            docker push $$URL_PREFIX/vita_namespace/$SERVICE:${{ github.sha }}
             
             echo "✅ Successfully Deployed $SERVICE to ${{ github.event.inputs.branch }}"
             cd ../..
