@@ -6,7 +6,7 @@
 
     <groupId>com.vita</groupId>
     <artifactId>vita</artifactId>
-    <version>${reversion}</version>
+    <version>1.0.0</version>
     <modules>
         <module>vita-common</module>
         <module>vita-gateway</module>
@@ -31,7 +31,6 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <spring.cloud.version>2021.0.6</spring.cloud.version>
         <spring.cloud.alibaba.version>2021.0.4.0</spring.cloud.alibaba.version>
         <mybatis.plus.boot.version>3.5.3</mybatis.plus.boot.version>
@@ -47,6 +46,11 @@
     <!-- 子模块继承之后，提供作用：锁定版本+子module不用写groupId和version  -->
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.vita</groupId>
+                <artifactId>vita-common</artifactId>
+                <version>${reversion}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>

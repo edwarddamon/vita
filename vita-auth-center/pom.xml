@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vita</groupId>
         <artifactId>vita</artifactId>
-        <version>${reversion}</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,6 @@
         <dependency>
             <groupId>com.vita</groupId>
             <artifactId>vita-common</artifactId>
-            <version>${reversion}</version>
         </dependency>
 
         <dependency>
