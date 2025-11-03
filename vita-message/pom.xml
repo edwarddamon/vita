@@ -18,6 +18,7 @@
         <dependency>
             <groupId>com.vita</groupId>
             <artifactId>vita-common</artifactId>
+            <version>${reversion}</version>
         </dependency>
 
         <dependency>

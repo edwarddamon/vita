@@ -46,11 +46,6 @@
     <!-- 子模块继承之后，提供作用：锁定版本+子module不用写groupId和version  -->
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.vita</groupId>
-                <artifactId>vita-common</artifactId>
-                <version>${reversion}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
