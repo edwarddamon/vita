@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/openjdk:8-8.6
 
 MAINTAINER Edward
 
