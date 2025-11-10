@@ -51,8 +51,8 @@ stages:
         username: '100014795141'
         password: '!qaztencent'
         tag: vita_namespace/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
-        dockerfile: ${SERVICE_NAME}/Dockerfile
-        context: ''
+        dockerfile: Dockerfile
+        context: ${SERVICE_NAME}
         artifacts:
           - ${BUILD_ARTIFACT}
         isCache: true
