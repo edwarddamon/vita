@@ -1,4 +1,4 @@
-FROM williamyeh/java8
+FROM openjdk:8
 
 MAINTAINER Edward
 
