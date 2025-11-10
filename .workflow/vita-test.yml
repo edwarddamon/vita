@@ -29,7 +29,7 @@ stages:
         artifacts:
           - name: BUILD_ARTIFACT
             path:
-              - ./target/*.jar
+              - ./target
         settings: []
         caches:
           - ~/.m2
