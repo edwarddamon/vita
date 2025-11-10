@@ -1,0 +1,34 @@
+version: '1.0'
+name: vita-test
+displayName: vita-test
+triggers:
+  trigger: manual
+  push:
+    branches:
+      prefix:
+        - master
+        - release
+        - dev
+variables:
+  SERVICE_NAME: vita-api
+stages:
+  - name: mvn_package
+    displayName: mvn package
+    strategy: naturally
+    trigger: auto
+    executor:
+      - example-user
+    steps:
+      - step: build@maven
+        name: build_maven
+        displayName: Maven 构建
+        jdkVersion: '8'
+        mavenVersion: 3.5.2
+        commands:
+          - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
+        settings: []
+        caches:
+          - ~/.m2
+        notify: []
+        strategy:
+          retry: '0'
