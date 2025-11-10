@@ -26,6 +26,10 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
+        artifacts:
+          - name: BUILD_ARTIFACT
+            path:
+              - ${SERVICE_NAME}/.target
         settings: []
         caches:
           - ~/.m2
@@ -48,7 +52,7 @@ stages:
         password: '!qaztencent'
         tag: vita_namespace/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
         dockerfile: ${SERVICE_NAME}/Dockerfile
-        context: ${SERVICE_NAME}
+        context: ''
         artifacts:
           - ${BUILD_ARTIFACT}
         isCache: true
