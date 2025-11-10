@@ -1,0 +1,36 @@
+version: '1.0'
+name: pipeline-20251110
+displayName: vita-test
+triggers:
+  trigger: manual
+  pr:
+    branches:
+      prefix:
+        - master
+        - release
+        - dev
+stages:
+  - name: stage-16f66e9b
+    displayName: mvn compile package
+    strategy: naturally
+    trigger: manual
+    executor:
+      - example-user
+    steps:
+      - step: build@maven
+        name: build_maven
+        displayName: Maven 构建
+        jdkVersion: '8'
+        mavenVersion: 3.5.2
+        commands:
+          - mvn clean install -pl ${project} -am -DskipTests
+        artifacts:
+          - name: BUILD_ARTIFACT
+            path:
+              - ./target
+        settings: []
+        caches:
+          - ~/.m2
+        notify: []
+        strategy:
+          retry: '0'
