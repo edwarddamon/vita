@@ -1,5 +1,4 @@
-#FROM williamyeh/java8
-FROM openjdk:8-jdk-alpine
+FROM williamyeh/java8
 
 MAINTAINER Edward
 
