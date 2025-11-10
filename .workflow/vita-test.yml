@@ -32,3 +32,28 @@ stages:
         notify: []
         strategy:
           retry: '0'
+  - name: docker_build_push
+    displayName: docker build push
+    strategy: naturally
+    trigger: auto
+    executor:
+      - example-user
+    steps:
+      - step: build@docker
+        name: build_docker
+        displayName: 镜像构建
+        type: account
+        repository: registry.example.com
+        username: '100014795141'
+        password: '!qaztencent'
+        tag: vita_namespace/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
+        dockerfile: ${SERVICE_NAME}/Dockerfile
+        context: ''
+        artifacts: []
+        isCache: false
+        processorType:
+          - amd64
+        parameter: {}
+        notify: []
+        strategy:
+          retry: '0'
