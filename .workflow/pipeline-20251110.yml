@@ -9,6 +9,8 @@ triggers:
         - master
         - release
         - dev
+variables:
+  SERVICE_NAME: vita-api
 stages:
   - name: stage-16f66e9b
     displayName: mvn compile package
@@ -23,7 +25,7 @@ stages:
         jdkVersion: '8'
         mavenVersion: 3.5.2
         commands:
-          - mvn clean install -pl ${project} -am -DskipTests
+          - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
         artifacts:
           - name: BUILD_ARTIFACT
             path:
