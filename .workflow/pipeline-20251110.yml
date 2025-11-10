@@ -22,14 +22,13 @@ stages:
     steps:
       - step: build@maven
         name: build_maven
-        displayName: Maven 构建
+        displayName: mvn_package
         jdkVersion: '8'
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
         settings: []
-        caches:
-          - ~/.m2
+        caches: []
         notify: []
         strategy:
           retry: '0'
