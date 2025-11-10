@@ -46,7 +46,7 @@ stages:
         repository: ${TCR_URL}
         username: '100014795141'
         password: '!qaztencent'
-        tag: ${GITEE_PIPELINE_BUILD_NUMBER}
+        tag: viata_namespace/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
         dockerfile: ${SERVICE_NAME}/Dockerfile
         context: ''
         artifacts: []
