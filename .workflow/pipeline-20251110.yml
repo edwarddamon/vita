@@ -12,8 +12,6 @@ triggers:
 variables:
   SERVICE_NAME: vita-api
   TCR_URL: registry.example.com
-  TCR_USERID: '100014795141'
-  TCR_PASSWORD: '!qaztencent'
 stages:
   - name: stage-16f66e9b
     displayName: mvn compile package
