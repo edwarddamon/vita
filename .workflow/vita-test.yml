@@ -26,12 +26,6 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
-          - ''
-          - mkdir ./target
-        artifacts:
-          - name: BUILD_ARTIFACT
-            path:
-              - ./target
         settings: []
         caches:
           - ~/.m2
