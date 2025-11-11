@@ -51,7 +51,7 @@ stages:
         repository: registry.example.com
         username: '100014795141'
         password: '!qaztencent'
-        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${IMAGE_TAG}
+        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_BRANCH}
         dockerfile: ${SERVICE_NAME}/Dockerfile
         context: ''
         artifacts:
