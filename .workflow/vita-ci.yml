@@ -27,6 +27,12 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
+          - ''
+          - ''
+          - ''
+          - ''
+          - ''
+          - echo '${IMAGE_TAG}=$(date +%Y%m%d%H%M%S)' >> GITEE_PARAMS
         artifacts:
           - name: BUILD_PACKAGE_JAR
             path:
@@ -51,7 +57,7 @@ stages:
         repository: registry.example.com
         username: '100014795141'
         password: '!qaztencent'
-        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
+        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${IMAGE_TAG}
         dockerfile: ${SERVICE_NAME}/Dockerfile
         context: ''
         artifacts:
