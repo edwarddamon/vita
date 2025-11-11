@@ -11,6 +11,7 @@ triggers:
         - dev
 variables:
   SERVICE_NAME: vita-api
+  TCR_NAMESPACE: vita_namespace
 stages:
   - name: mvn_package
     displayName: mvn package
@@ -46,11 +47,10 @@ stages:
         repository: registry.example.com
         username: '100014795141'
         password: '!qaztencent'
-        tag: vita_namespace/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
+        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
         dockerfile: ${SERVICE_NAME}/Dockerfile
-        context: ''
-        artifacts:
-          - ${BUILD_ARTIFACT}
+        context: ./${SERVICE_NAME}
+        artifacts: []
         isCache: true
         processorType:
           - amd64
