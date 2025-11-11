@@ -22,7 +22,7 @@ RUN mkdir -p /opt/${PRO_NAME}
 EXPOSE 8023
 
 # 添加jar包，存放路径以及重命名
-ADD ./target/*.jar /opt/${PRO_NAME}/${SERVICE_NAME}.jar
+ADD target/*.jar /opt/${PRO_NAME}/${SERVICE_NAME}.jar
 
 # 添加进入docker容器后的目录
 WORKDIR /opt/${PRO_NAME}
