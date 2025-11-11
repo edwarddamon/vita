@@ -47,6 +47,8 @@ stages:
       - step: build@docker
         name: build_docker
         displayName: 镜像构建
+        commands:
+          - ls -l
         type: account
         repository: registry.example.com
         username: '100014795141'
