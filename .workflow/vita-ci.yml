@@ -1,0 +1,65 @@
+version: '1.0'
+name: vita-ci
+displayName: vita-ci
+triggers:
+  trigger: manual
+  push:
+    branches:
+      prefix:
+        - master
+        - release
+        - dev
+variables:
+  SERVICE_NAME: vita-api
+  TCR_NAMESPACE: vita_namespace
+stages:
+  - name: mvn_package
+    displayName: mvn package
+    strategy: naturally
+    trigger: auto
+    executor:
+      - example-user
+    steps:
+      - step: build@maven
+        name: build_maven
+        displayName: Maven 构建
+        jdkVersion: '8'
+        mavenVersion: 3.5.2
+        commands:
+          - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
+        artifacts:
+          - name: BUILD_PACKAGE_JAR
+            path:
+              - ./${SERVICE_NAME}/target
+        settings: []
+        caches:
+          - ~/.m2
+        notify: []
+        strategy:
+          retry: '0'
+  - name: docker_build_push
+    displayName: docker build push
+    strategy: naturally
+    trigger: auto
+    executor:
+      - example-user
+    steps:
+      - step: build@docker
+        name: build_docker
+        displayName: 镜像构建
+        type: account
+        repository: registry.example.com
+        username: '100014795141'
+        password: '!qaztencent'
+        tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
+        dockerfile: ${SERVICE_NAME}/Dockerfile
+        context: ''
+        artifacts:
+          - ${BUILD_PACKAGE_JAR}
+        isCache: true
+        processorType:
+          - amd64
+        parameter: {}
+        notify: []
+        strategy:
+          retry: '0'
