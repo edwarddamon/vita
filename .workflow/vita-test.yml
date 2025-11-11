@@ -1,6 +1,6 @@
 version: '1.0'
 name: vita-test
-displayName: vita-test
+displayName: vita-ci
 triggers:
   trigger: manual
   push:
