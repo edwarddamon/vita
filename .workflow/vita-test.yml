@@ -31,6 +31,8 @@ stages:
           - ls -l
           - ''
           - ls -l ./${SERVICE_NAME}
+          - ''
+          - ls -l ./${SERVICE_NAME}/target
         settings: []
         caches:
           - ~/.m2
