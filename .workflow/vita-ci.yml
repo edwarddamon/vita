@@ -10,8 +10,9 @@ triggers:
         - release
         - dev
 variables:
-  SERVICE_NAME: vita-api
   TCR_NAMESPACE: vita_namespace
+  global:
+    - SERVICE_NAME
 stages:
   - name: mvn_package
     displayName: mvn package
