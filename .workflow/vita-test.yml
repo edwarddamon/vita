@@ -30,7 +30,7 @@ stages:
           - ''
           - ls -l
           - ''
-          - ls -l ./target
+          - ls -l ./${SERVICE_NAME}
         settings: []
         caches:
           - ~/.m2
