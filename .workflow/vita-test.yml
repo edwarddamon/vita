@@ -27,6 +27,10 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
+        artifacts:
+          - name: BUILD_PACKAGE_JAR
+            path:
+              - ./${SERVICE_NAME}/target
         settings: []
         caches:
           - ~/.m2
@@ -51,7 +55,7 @@ stages:
         dockerfile: ${SERVICE_NAME}/Dockerfile
         context: ''
         artifacts:
-          - ${BUILD_ARTIFACT}
+          - ${BUILD_PACKAGE_JAR}
         isCache: true
         processorType:
           - amd64
