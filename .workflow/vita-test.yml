@@ -49,7 +49,9 @@ stages:
         password: '!qaztencent'
         tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
         dockerfile: ${SERVICE_NAME}/Dockerfile
-        context: ./${SERVICE_NAME}
+        context: ''
+        artifacts:
+          - ${BUILD_ARTIFACT}
         isCache: true
         processorType:
           - amd64
