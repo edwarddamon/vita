@@ -27,10 +27,6 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
-        artifacts:
-          - name: BUILD_ARTIFACT
-            path:
-              - ./${SERVICE_NAME}/target/
         settings: []
         caches:
           - ~/.m2
@@ -47,8 +43,6 @@ stages:
       - step: build@docker
         name: build_docker
         displayName: 镜像构建
-        commands:
-          - ls -l
         type: account
         repository: registry.example.com
         username: '100014795141'
@@ -56,8 +50,6 @@ stages:
         tag: ${TCR_NAMESPACE}/${SERVICE_NAME}:${GITEE_PIPELINE_BUILD_NUMBER}
         dockerfile: ${SERVICE_NAME}/Dockerfile
         context: ./${SERVICE_NAME}
-        artifacts:
-          - ${BUILD_ARTIFACT}
         isCache: true
         processorType:
           - amd64
