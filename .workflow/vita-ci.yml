@@ -27,13 +27,6 @@ stages:
         mavenVersion: 3.5.2
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
-          - ''
-          - ''
-          - ''
-          - ''
-          - BUILD_TIME=$(date -u --date="now +8 hours" +%Y%m%d%H%M%S)
-          - echo '${IMAGE_TAG}=BUILD_TIME' >> GITEE_PARAMS
-          - echo '镜像TAG：${IMAGE_TAG}'
         artifacts:
           - name: BUILD_PACKAGE_JAR
             path:
