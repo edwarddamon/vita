@@ -12,6 +12,7 @@ triggers:
 variables:
   SERVICE_NAME: vita-api
   TCR_NAMESPACE: vita_namespace
+  IMAGE_TAG: $(date -u --date="now +8 hours" +%Y%m%d%H%M%S)
 stages:
   - name: mvn_package
     displayName: mvn package
