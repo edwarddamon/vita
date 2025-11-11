@@ -63,3 +63,18 @@ stages:
         notify: []
         strategy:
           retry: '0'
+  - name: stage-inform
+    displayName: inform
+    strategy: naturally
+    trigger: auto
+    executor:
+      - example-user
+    steps:
+      - step: tool@review
+        name: gitee_inform
+        displayName: 人工卡点
+        reviewer:
+          - example-user
+        notify: []
+        strategy:
+          retry: '0'
