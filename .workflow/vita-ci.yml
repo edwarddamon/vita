@@ -31,8 +31,9 @@ stages:
           - ''
           - ''
           - ''
-          - ''
-          - echo '${IMAGE_TAG}=$(date +%Y%m%d%H%M%S)' >> GITEE_PARAMS
+          - BUILD_TIME=$(date -u --date="now +8 hours" +%Y%m%d%H%M%S)
+          - echo '${IMAGE_TAG}=BUILD_TIME' >> GITEE_PARAMS
+          - echo '镜像TAG：${IMAGE_TAG}'
         artifacts:
           - name: BUILD_PACKAGE_JAR
             path:
