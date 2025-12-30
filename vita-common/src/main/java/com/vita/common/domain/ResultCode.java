@@ -16,12 +16,27 @@ public enum ResultCode {
     /**
      * 失败状态码
      */
-    FAIL(-1, "系统异常"),
+    FAIL(1000, "系统异常"),
 
     /**
-     * 错误状态码
+     * 未登录
      */
-    UNAUTHORIZED(401, "Unauthorized"),
+    UNAUTHORIZED(401, "请登录后操作！"),
+
+    /**
+     * 获取用户信息异常
+     */
+    USER_INFO_ERROR(402, "获取用户信息失败！"),
+
+    /**
+     * 权限不足
+     */
+    NO_INTERFACE_PERMISSION(405, "您的权限不足！"),
+
+    /**
+     * 参数校验异常状态码
+     */
+    PARAM_CHECK_EXCEPTION(600, "param.check.exception"),
 
     ;
 

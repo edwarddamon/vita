@@ -1,7 +1,7 @@
 package com.vita.common.interceptor;
 
+import com.vita.common.domain.common.constant.CommonConstant;
 import com.vita.common.utils.TraceIdUtil;
-import com.vita.common.domain.common.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,14 +17,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TraceIdHandlerInterceptor implements HandlerInterceptor {
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String traceId = request.getHeader(CommonConstant.TRACE_ID);
         MDC.put(CommonConstant.TRACE_ID, StringUtils.isNotBlank(traceId) ? traceId : TraceIdUtil.generateTraceId());
         return true;
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         MDC.remove(CommonConstant.TRACE_ID);
     }
 }

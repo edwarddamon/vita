@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vita.auth.mapper.UserRoleRelMapper">
+
+    <delete id="deleteUserRoleRel">
+        delete from inf_user_role_rel where user_id = #{userId};
+    </delete>
+
+    <insert id="insertBatch">
+        insert into inf_user_role_rel (id, user_id, role_id, create_time, update_time) values
+        <foreach collection="associateList" item="item" separator=",">
+            (#{item.id}, #{item.userId}, #{item.roleId}, #{item.createTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

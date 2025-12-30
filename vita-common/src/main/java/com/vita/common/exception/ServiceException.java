@@ -1,5 +1,6 @@
 package com.vita.common.exception;
 
+import com.vita.common.domain.Result;
 import com.vita.common.domain.ResultCode;
 
 /**
@@ -23,6 +24,11 @@ public class ServiceException extends RuntimeException {
     public ServiceException(ResultCode resultCode) {
         super(resultCode.getMessage());
         this.code = resultCode.getCode();
+    }
+
+    public ServiceException(String message) {
+        super(message);
+        this.code = ResultCode.FAIL.getCode();
     }
 
     public ServiceException(Integer code, String message) {

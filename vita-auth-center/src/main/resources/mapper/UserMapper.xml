@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vita.auth.mapper.UserMapper">
+
+    <select id="describeUserInterfaces" resultType="com.vita.common.domain.user.InterfaceInfoBO">
+        SELECT
+            sip.`path`,
+            sip.`name`
+        FROM sys_interface_permission sip
+                 JOIN rel_role_interface rri ON sip.id = rri.interface_id
+                 JOIN sys_role sr ON rri.role_id = sr.id AND sr.del_flag = 0
+                 JOIN rel_user_role rur ON rri.role_id = rur.role_id
+        WHERE sip.need_auth = 1 AND sip.del_flag = 0 AND rur.user_id = 1;
+    </select>
+
+    <select id="listUser" resultType="com.vita.auth.entity.User">
+        SELECT
+        id,
+        avatar,
+        username,
+        password,
+        phone,
+        email,
+        del_flag,
+        create_time,
+        update_time
+        FROM inf_user
+        <where>
+            <if test="listUserInfoDTO.email != null and listUserInfoDTO.email != ''">
+                AND email like concat('%', #{listUserInfoDTO.email}, '%')
+            </if>
+            <if test="listUserInfoDTO.phone != null and listUserInfoDTO.phone != ''">
+                AND phone like concat('%', #{listUserInfoDTO.phone}, '%')
+            </if>
+            <if test="listUserInfoDTO.username != null and listUserInfoDTO.username != ''">
+                AND username like concat('%', #{listUserInfoDTO.username}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

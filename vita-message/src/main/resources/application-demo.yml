@@ -1,0 +1,49 @@
+server:
+  port: 8043
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: vita-message
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: vita-dev
+        group: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/demo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+# mybatis-plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 接口文档配置
+knife4j:
+  enable: true
+  basic:
+    enable: true
+    username: vita
+    password: vita
+
+# 日志级别
+logging:
+  level:
+    root: debug
+
+# 通用线程池
+vita:
+  common:
+    task-executor:
+      core-pool-size: 4
+      max-pool-size: 8
+      queue-capacity: 100
+      keep-alive-seconds: 300
