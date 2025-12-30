@@ -1,4 +1,4 @@
-package com.vita.message.config;
+package com.vita.im.config;
 
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import org.apache.commons.lang3.StringUtils;

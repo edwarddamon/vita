@@ -15,6 +15,7 @@
         <module>vita-api</module>
         <module>vita-auth-center</module>
         <module>vita-message</module>
+        <module>vita-im</module>
     </modules>
 
     <!--parent作用：Java版本、源码的文件编码方式、依赖管理打包、支持动态识别资源、识别插件配置、识别不同的配置-->

@@ -71,3 +71,21 @@ services:
       options:
         max-size: "50m"
         max-file: "1"
+
+  vita-im:
+    image: xxxxx/vita-im:1.0.0
+    container_name: vita-im
+    restart: always
+    ports:
+      - "8043:8043"
+    environment:
+      #      - JAVA_OPTS=-Xms256m -Xmx512m
+      - ACTIVE_PROFILE=test
+    volumes:
+      - /opt/vita/vita-im/logs:/opt/vita/logs/
+      - /opt/vita/vita-im/dumps:/opt/vita/dumps/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"

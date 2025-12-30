@@ -1,8 +1,8 @@
-package com.vita.message.controller;
+package com.vita.im.controller;
 
 import com.vita.common.domain.Result;
 import com.vita.common.domain.mail.CommonMailSendDto;
-import com.vita.message.facade.EmailFacade;
+import com.vita.im.facade.EmailFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

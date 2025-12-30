@@ -1,4 +1,4 @@
-package com.vita.message;
+package com.vita.im;
 
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
@@ -14,9 +14,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @Slf4j
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = "com.vita.message")
-@EnableFeignClients(basePackages = "com.vita.message.client")
-@MapperScan("com.vita.message.mapper")
+@SpringBootApplication(scanBasePackages = "com.vita.im")
+@EnableFeignClients(basePackages = "com.vita.im.client")
+@MapperScan("com.vita.im.mapper")
 public class MessageApplication {
     public static void main(String[] args) {
         SpringApplication.run(MessageApplication.class, args);

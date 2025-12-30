@@ -1,4 +1,4 @@
-package com.vita.message.entity;
+package com.vita.im.entity;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
