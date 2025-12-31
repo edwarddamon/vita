@@ -24,16 +24,26 @@ spring:
           filters:
             # 转发后路径去掉 /api
             - StripPrefix=1
+
         - id: vita-auth-center
           uri: lb://vita-auth-center
           predicates:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+
         - id: vita-message
           uri: lb://vita-message
           predicates:
             - Path=/message/**
+          filters:
+            - StripPrefix=1
+
+        # IM即时通讯服务
+        - id: vita-im
+          uri: lb:ws://vita-im
+          predicates:
+            - Path=/im/**
           filters:
             - StripPrefix=1
 
