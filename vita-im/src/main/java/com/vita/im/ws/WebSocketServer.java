@@ -10,6 +10,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -32,22 +33,26 @@ public class WebSocketServer {
     @OnOpen
     public void onOpen(@PathParam("userId") String userId, Session session) {
         wsSessions.put(userId, session);
-        System.out.println("用户[" + userId + "]已连接，当前在线人数：" + wsSessions.size());
-
-        MessageBO messageBO = new MessageBO().setContent("用户" + userId + "已上线！");
-        broadcastMessage(new Gson().toJson(messageBO));
+        log.info("用户[{}]已连接，当前在线人数：{}", userId, wsSessions.size());
     }
 
     /**
      * 接收客户端消息
      */
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public void onMessage(String message, Session session) throws IOException {
         MessageBO messageBO = new Gson().fromJson(message, MessageBO.class);
-        System.out.println("用户[" + messageBO.getFrom() + "]已发送消息：" + message);
 
-        // 广播消息给所有在线用户
-        broadcastMessage(message);
+        // 私聊
+        Session toSession = wsSessions.get(messageBO.getTo());
+        if (Objects.isNull(toSession)) {
+            messageBO.setContent("用户" + messageBO.getTo() + "已下线！");
+            messageBO.setFrom("system");
+            sendMessage(session, messageBO);
+            return;
+        }
+
+        sendMessage(toSession, messageBO);
     }
 
     /**
@@ -56,11 +61,7 @@ public class WebSocketServer {
     @OnClose
     public void onClose(@PathParam("userId") String userId, Session session) {
         wsSessions.remove(userId);
-        System.out.println("用户[" + userId + "]已断开连接，当前在线人数：" + wsSessions.size());
-
-        // 广播消息给所有在线用户
-        MessageBO messageBO = new MessageBO().setContent("用户" + userId + "已下线！");
-        broadcastMessage(new Gson().toJson(messageBO));
+        log.info("用户[{}]已断开连接，当前在线人数：{}", userId, wsSessions.size());
     }
 
     /**
@@ -68,18 +69,32 @@ public class WebSocketServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        log.error("[WebSocket] 发生错误：{}", error.getMessage(), error);
+        wsSessions.remove(session.getId());
+        log.info("用户[{}] 发生错误，已断开连接，当前在线人数：{}", session.getId(), wsSessions.size());
+    }
+
+
+    /**
+     * 给指定用户发送消息
+     */
+    private void sendMessage(Session session, MessageBO message) {
+        try {
+            session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            log.error("[WebSocket-1v1] 广播消息失败，原因：{}", e.getMessage(), e);
+        }
     }
 
     /**
      * 广播消息给所有在线用户
      */
-    private void broadcastMessage(String message) {
+    private void broadcastMessage(MessageBO message) {
+        String messageStr = new Gson().toJson(message);
         wsSessions.values().forEach(session -> {
             try {
-                session.getBasicRemote().sendText(message);
+                session.getBasicRemote().sendText(messageStr);
             } catch (IOException e) {
-                log.error("[WebSocket] 广播消息失败，原因：{}", e.getMessage(), e);
+                log.error("[WebSocket-broadcast] 广播消息失败，原因：{}", e.getMessage(), e);
             }
         });
     }

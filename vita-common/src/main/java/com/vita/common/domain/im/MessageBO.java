@@ -31,4 +31,15 @@ public class MessageBO {
      * 消息类型
      */
     private String type;
+
+    /**
+     * 交换消息方向
+     */
+    public MessageBO switchSide() {
+        return new MessageBO()
+                .setFrom(this.getTo())
+                .setTo(this.getFrom())
+                .setContent(this.getContent())
+                .setType(this.getType());
+    }
 }
