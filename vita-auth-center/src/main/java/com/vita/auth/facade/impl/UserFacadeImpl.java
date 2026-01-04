@@ -70,6 +70,7 @@ public class UserFacadeImpl implements UserFacade {
         UserInfoBO currentUser = TokenUtil.getCurrentUser();
 
         return new UserInfoVO()
+                .setUserId(currentUser.getUserId())
                 .setAvatar(currentUser.getAvatar())
                 .setUsername(currentUser.getUsername())
                 .setPhone(currentUser.getPhone())

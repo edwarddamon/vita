@@ -11,6 +11,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UserInfoVO {
 
+    private Long userId;
+
     private String avatar;
 
     private String username;
