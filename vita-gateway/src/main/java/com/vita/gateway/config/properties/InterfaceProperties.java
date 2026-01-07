@@ -9,10 +9,15 @@ import java.util.List;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "interface")
-public class InterfaceWhiteListProperties {
+public class InterfaceProperties {
 
     /**
      * 白名单接口
      */
     private List<String> whiteList;
+
+    /**
+     * url token 转为 header 接口
+     */
+    private List<String> urlTokenToHeaderList;
 }

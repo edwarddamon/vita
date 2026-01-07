@@ -7,7 +7,7 @@ import com.vita.common.domain.common.constant.HttpConstant;
 import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.user.UserInfoBO;
 import com.vita.common.exception.ServiceException;
-import com.vita.gateway.config.properties.InterfaceWhiteListProperties;
+import com.vita.gateway.config.properties.InterfaceProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -37,7 +37,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private static final String HEATH_CHECK = "/health/check";
 
     private final StringRedisTemplate redisTemplate;
-    private final InterfaceWhiteListProperties whiteListProperties;
+    private final InterfaceProperties whiteListProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -118,6 +118,6 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 10;
+        return HIGHEST_PRECEDENCE + 20;
     }
 }

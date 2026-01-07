@@ -47,9 +47,12 @@ spring:
           filters:
             - StripPrefix=1
 
+# 相关接口配置
 interface:
-  whitelist:
+  white-list:
     - /auth/user/login
+  url-token-to-header-list:
+    - /im/ws/**
 
 # 接口文档配置
 knife4j:
