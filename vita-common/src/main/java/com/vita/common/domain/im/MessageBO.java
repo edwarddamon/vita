@@ -13,14 +13,24 @@ import lombok.experimental.Accessors;
 public class MessageBO {
 
     /**
-     * 消息来源用户Id
+     * 消息Id
      */
-    private String from;
+    private String id;
 
     /**
-     * 消息目标用户Id
+     * 发送方Id
      */
-    private String to;
+    private String senderId;
+
+    /**
+     * 发送方名称
+     */
+    private String senderName;
+
+    /**
+     * 接收方Id
+     */
+    private String receiverId;
 
     /**
      * 消息内容
@@ -33,13 +43,20 @@ public class MessageBO {
     private String type;
 
     /**
+     * 消息时间
+     */
+    private String time;
+
+    /**
      * 交换消息方向
      */
     public MessageBO switchSide() {
         return new MessageBO()
-                .setFrom(this.getTo())
-                .setTo(this.getFrom())
+                .setId(this.getId())
+                .setSenderId(this.getReceiverId())
+                .setReceiverId(this.getSenderId())
                 .setContent(this.getContent())
-                .setType(this.getType());
+                .setType(this.getType())
+                .setTime(this.getTime());
     }
 }

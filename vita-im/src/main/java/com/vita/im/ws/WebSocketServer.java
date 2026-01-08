@@ -10,7 +10,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,15 +43,16 @@ public class WebSocketServer {
         MessageBO messageBO = new Gson().fromJson(message, MessageBO.class);
 
         // 私聊
-        Session toSession = wsSessions.get(messageBO.getTo());
-        if (Objects.isNull(toSession)) {
-            messageBO.setContent("用户" + messageBO.getTo() + "已下线！");
-            messageBO.setFrom("system");
-            sendMessage(session, messageBO);
-            return;
-        }
-
-        sendMessage(toSession, messageBO);
+//        Session toSession = wsSessions.get(messageBO.getReceiverId());
+//        if (Objects.isNull(toSession)) {
+//            messageBO.setContent("用户" + messageBO.getReceiverId() + "已下线！");
+//            messageBO.setSenderId("system");
+//            sendMessage(session, messageBO);
+//            return;
+//        }
+//
+//        sendMessage(toSession, messageBO);
+        broadcastMessageExceptSender(session, messageBO);
     }
 
     /**
@@ -95,6 +95,22 @@ public class WebSocketServer {
                 session.getBasicRemote().sendText(messageStr);
             } catch (IOException e) {
                 log.error("[WebSocket-broadcast] 广播消息失败，原因：{}", e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
+     * 广播消息给所有在线用户（除了消息发送方）
+     */
+    private void broadcastMessageExceptSender(Session session, MessageBO message) {
+        String messageStr = new Gson().toJson(message);
+        wsSessions.values().forEach(s -> {
+            if (!s.getId().equals(session.getId())) {
+                try {
+                    s.getBasicRemote().sendText(messageStr);
+                } catch (IOException e) {
+                    log.error("[WebSocket-broadcast] 广播消息失败，原因：{}", e.getMessage(), e);
+                }
             }
         });
     }
