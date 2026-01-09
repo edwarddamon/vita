@@ -1,7 +1,12 @@
 package com.vita.common.domain.im;
 
+import com.vita.common.domain.im.enums.MsgStatusEnum;
+import com.vita.common.domain.im.enums.MsgTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 消息BO
@@ -39,8 +44,17 @@ public class MessageBO {
 
     /**
      * 消息类型
+     * <p/>
+     * {@link MsgTypeEnum}
      */
     private String type;
+
+    /**
+     * 消息状态
+     * <p/>
+     * {@link MsgStatusEnum}
+     */
+    private String status;
 
     /**
      * 消息时间
@@ -58,5 +72,13 @@ public class MessageBO {
                 .setContent(this.getContent())
                 .setType(this.getType())
                 .setTime(this.getTime());
+    }
+
+    /**
+     * 更新时间
+     */
+    public MessageBO updateTime() {
+        // 转为 yyyy-MM-dd HH:mm:ss
+        return this.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 }

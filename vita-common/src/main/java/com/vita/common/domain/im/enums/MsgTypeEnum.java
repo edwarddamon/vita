@@ -32,5 +32,10 @@ public enum MsgTypeEnum {
      * 视频
      */
     VIDEO,
+
+    /**
+     * 确认消息
+     */
+    ACK,
     ;
 }

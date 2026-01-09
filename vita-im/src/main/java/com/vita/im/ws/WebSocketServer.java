@@ -2,6 +2,8 @@ package com.vita.im.ws;
 
 import com.google.gson.Gson;
 import com.vita.common.domain.im.MessageBO;
+import com.vita.common.domain.im.enums.MsgStatusEnum;
+import com.vita.common.domain.im.enums.MsgTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +41,17 @@ public class WebSocketServer {
      * 接收客户端消息
      */
     @OnMessage
-    public void onMessage(String message, Session session) throws IOException {
+    public void onMessage(String message, Session session) throws IOException, InterruptedException {
         MessageBO messageBO = new Gson().fromJson(message, MessageBO.class);
+
+        // 消息发送结果通知 - 成功
+        sendMessage(
+                session,
+                new MessageBO()
+                        .setId(messageBO
+                        .getId())
+                        .setType(MsgTypeEnum.ACK.name())
+                        .setStatus(MsgStatusEnum.SUCCESS.name()));
 
         // 私聊
 //        Session toSession = wsSessions.get(messageBO.getReceiverId());
@@ -79,6 +90,7 @@ public class WebSocketServer {
      */
     private void sendMessage(Session session, MessageBO message) {
         try {
+            message.updateTime();
             session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             log.error("[WebSocket-1v1] 广播消息失败，原因：{}", e.getMessage(), e);
@@ -103,6 +115,7 @@ public class WebSocketServer {
      * 广播消息给所有在线用户（除了消息发送方）
      */
     private void broadcastMessageExceptSender(Session session, MessageBO message) {
+        message.updateTime();
         String messageStr = new Gson().toJson(message);
         wsSessions.values().forEach(s -> {
             if (!s.getId().equals(session.getId())) {
