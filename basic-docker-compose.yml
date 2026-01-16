@@ -1,28 +1,30 @@
 services:
   nacos:
-    image: nacos/nacos-server:v2.4.0
-    container_name: nacos_2.4.0
+    image: nacos/nacos-server:v3.0.3
+    container_name: nacos
     restart: always
     ports:
+      - 7080:8080
       - 8828:8848
       - 9828:9848
       - 9829:9849
     environment:
       TZ: Asia/Shanghai
       MODE: standalone
-      NACOS_AUTH_ENABLE: true # 开启权限控制
-      NACOS_AUTH_TOKEN: 'changeme_nacos_auth_token=' # 自定义token
-      NACOS_AUTH_IDENTITY_KEY: identityKey # 自定义标识
-      NACOS_AUTH_IDENTITY_VALUE: identityValue # 自定义标识
+      NACOS_AUTH_ENABLE: true
+      NACOS_AUTH_TOKEN: 'changeme_nacos_auth_token='
+      NACOS_AUTH_IDENTITY_KEY: identityKey
+      NACOS_AUTH_IDENTITY_VALUE: identityValue
       SPRING_DATASOURCE_PLATFORM: mysql
       MYSQL_SERVICE_HOST: 127.0.0.1
       MYSQL_SERVICE_PORT: 3306
-      MYSQL_SERVICE_USER: nacos
-      MYSQL_SERVICE_PASSWORD: 'nacos'
-      MYSQL_SERVICE_DB_NAME: nacos
-      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: 'password'
+      MYSQL_SERVICE_DB_NAME: nacos_config_v3
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     volumes:
-      - /opt/nacos/logs/:/home/nacos/logs
+      # 挂载nacos日志目录，持久化日志，方便排查问题
+      - /opt/nacos/v3/logs/:/home/nacos/logs
     privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
     logging:
       driver: "json-file" # 默认的文件日志驱动
