@@ -29,17 +29,15 @@
 1. 涉及权限的改动必须下线所有用户
 
 # 技术栈
-- jdk 8
-- Springboot 2.7.12
-- SpringCloud 2021.0.6
-- SpringCloud Alibaba 2021.0.4.0
-- knife4j 4.1.0
-- mybatis-plus 3.5.3
+- jdk 17
+- Springboot 3.5.9
+- SpringCloud 2025.0.0
+- SpringCloud Alibaba 2025.0.0
 
 ---
 ## 中间件
-- nacos 2.4.0
-- mysql 8.0.13
+- nacos 3.0.3
+- mysql 8.0.28
 
 # 项目部署方式
 > [docker && docker compose 命令](https://docs.docker.com/engine/reference/commandline/compose/)

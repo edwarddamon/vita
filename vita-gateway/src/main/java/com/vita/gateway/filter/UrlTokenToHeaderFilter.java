@@ -2,7 +2,7 @@ package com.vita.gateway.filter;
 
 import com.vita.gateway.config.properties.InterfaceProperties;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;

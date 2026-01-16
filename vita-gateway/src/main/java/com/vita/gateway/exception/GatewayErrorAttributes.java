@@ -54,8 +54,8 @@ public class GatewayErrorAttributes extends DefaultErrorAttributes {
             }
         }
 
-        if (error instanceof ResponseStatusException) {
-            return ((ResponseStatusException) error).getStatus();
+        if (error instanceof ResponseStatusException resStatusError) {
+            return HttpStatus.resolve(resStatusError.getStatusCode().value());
         }
         return responseStatusAnnotation.getValue(CODE, HttpStatus.class).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
     }
