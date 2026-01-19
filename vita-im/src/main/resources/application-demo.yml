@@ -14,6 +14,12 @@ spring:
         password: nacos
         namespace: vita-dev
         group: dev
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6399
+      password: redis_pwd
+      database: 12
 
 # 接口文档配置
 knife4j:
