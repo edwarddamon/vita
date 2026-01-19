@@ -14,7 +14,7 @@ spring:
   # 显式导入远程 Discovery 配置（核心！替代 Bootstrap 的隐式加载）
   config:
     import:
-      - nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}?group=${spring.cloud.nacos.config.group}&namespace=${spring.cloud.nacos.config.namespace}
+    - nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}?group=${spring.cloud.nacos.config.group}&namespace=${spring.cloud.nacos.config.namespace}
 
 app:
   version: @project.version@
