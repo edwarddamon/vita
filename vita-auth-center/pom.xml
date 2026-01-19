@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.vita</groupId>
         <artifactId>vita</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>vita-auth-center</artifactId>
