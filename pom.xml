@@ -78,6 +78,13 @@
                 <version>${mybatis.plus.boot.version}</version>
             </dependency>
 
+            <!-- 分页插件 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis.plus.boot.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-generator</artifactId>
