@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!--上下文名称-->
-    <contextName>vita-message</contextName>
+    <contextName>vita-im</contextName>
     <!--日志名称-->
-    <property name="LOG_NAME" value="vita-message"/>
+    <property name="LOG_NAME" value="vita-im"/>
     <!--日志路径-->
     <property name="LOG_PATH" value="./logs"/>
 
