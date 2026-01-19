@@ -1,4 +1,4 @@
-package com.vita.im.test.generator;
+package com.vita.message.test.generator;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
@@ -29,7 +29,7 @@ public class MybatisGenerate {
                 .globalConfig(builder -> {
                     builder.author("Edward") // 设置作者
                             .dateType(DateType.TIME_PACK) // 指定日期类型为 LocalDateTime
-                            .fileOverride() // 覆盖已生成文件
+//                            .fileOverride() // 覆盖已生成文件
                             .disableOpenDir()
                             .outputDir(System.getProperty("user.dir") + "/vita-message/src/test/java"); // 指定输出目录
                 })

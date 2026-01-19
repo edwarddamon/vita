@@ -1,11 +1,11 @@
-package com.vita.im.facade.impl;
+package com.vita.message.facade.impl;
 
 import com.vita.common.domain.Result;
 import com.vita.common.domain.mail.CommonMailSendDto;
 import com.vita.common.exception.ServiceException;
-import com.vita.im.client.MailFeignClient;
-import com.vita.im.facade.EmailFacade;
-import com.vita.im.service.EmailRecordService;
+import com.vita.message.client.MailFeignClient;
+import com.vita.message.facade.EmailFacade;
+import com.vita.message.service.EmailRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

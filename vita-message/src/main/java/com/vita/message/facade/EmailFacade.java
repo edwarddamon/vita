@@ -1,4 +1,4 @@
-package com.vita.im.facade;
+package com.vita.message.facade;
 
 import com.vita.common.domain.mail.CommonMailSendDto;
 

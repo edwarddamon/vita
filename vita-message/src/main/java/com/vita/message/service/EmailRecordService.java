@@ -1,9 +1,9 @@
-package com.vita.im.service;
+package com.vita.message.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.vita.common.domain.mail.CommonMailSendDto;
-import com.vita.im.entity.EmailRecord;
+import com.vita.message.entity.EmailRecord;
 
 /**
  * <p>

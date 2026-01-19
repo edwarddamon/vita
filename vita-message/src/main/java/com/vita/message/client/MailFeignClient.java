@@ -1,4 +1,4 @@
-package com.vita.im.client;
+package com.vita.message.client;
 
 import com.vita.common.domain.Result;
 import com.vita.common.domain.common.constant.AppCodeConstant;

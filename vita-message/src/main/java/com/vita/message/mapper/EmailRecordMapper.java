@@ -1,7 +1,7 @@
-package com.vita.im.mapper;
+package com.vita.message.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.vita.im.entity.EmailRecord;
+import com.vita.message.entity.EmailRecord;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

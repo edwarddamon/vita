@@ -1,11 +1,11 @@
-package com.vita.im.service.impl;
+package com.vita.message.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.vita.common.domain.mail.CommonMailSendDto;
-import com.vita.im.entity.EmailRecord;
-import com.vita.im.mapper.EmailRecordMapper;
-import com.vita.im.service.EmailRecordService;
+import com.vita.message.entity.EmailRecord;
+import com.vita.message.mapper.EmailRecordMapper;
+import com.vita.message.service.EmailRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
