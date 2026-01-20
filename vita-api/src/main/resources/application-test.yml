@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: vita-api
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        username: vita
+        password: changeme_nacos_password
+        namespace: vita-test
+        group: test
+        file-extension: yml
+
+  # 显式导入远程 Discovery 配置（核心！替代 Bootstrap 的隐式加载）
+  config:
+    import:
+    - nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}?group=${spring.cloud.nacos.config.group}&namespace=${spring.cloud.nacos.config.namespace}
+
+app:
+  version: @project.version@
