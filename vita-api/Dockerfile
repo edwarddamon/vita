@@ -1,5 +1,5 @@
 # 基础镜像：阿里云龙蜥JDK17精简版
-FROM openjdk:17-jdk-alpine
+FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/openjdk:17-8.6
 
 MAINTAINER Edward
 
