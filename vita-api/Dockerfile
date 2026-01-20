@@ -19,7 +19,9 @@ ENV JAVA_OPTS="\
 -XX:+UnlockExperimentalVMOptions \
 -XX:+UseZGC \
 -Dfile.encoding=UTF-8 \
--Dsun.jnu.encoding=UTF-8"
+-Dsun.jnu.encoding=UTF-8 \
+-Dnacos.logging.path=/opt/${PRO_NAME}/logs/nacos \
+-Dnacos.logs.path=/opt/${PRO_NAME}/logs/nacos \"
 
 # ========== 字符集 & 时区配置（通用） ==========
 RUN set -eux && \
