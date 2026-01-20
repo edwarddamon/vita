@@ -7,12 +7,15 @@ ENV PRO_NAME="vita"
 ENV SERVICE_NAME="vita-api"
 # 移除硬编码的ACTIVE_PROFILE，仅保留空默认值（运行时覆盖）
 ENV ACTIVE_PROFILE=""
+ENV NACOS_LOG_PATH="/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos"
+ENV USER_HOME="/opt/${PRO_NAME}"
+
 # JDK17通用JVM参数（无环境差异）
 ENV JAVA_OPTS="\
 -Xms512m -Xmx512m \
--Dnacos.logs.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
--Dcom.alibaba.nacos.logger.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
--Duser.home=/opt/${PRO_NAME} \
+-Dnacos.logs.path=${NACOS_LOG_PATH} \
+-Dcom.alibaba.nacos.logger.path=${NACOS_LOG_PATH} \
+-Duser.home=${USER_HOME} \
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=/opt/${PRO_NAME}/${SERVICE_NAME}/dumps/heap-dump.hprof \
 -Xlog:gc*:file=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/gc.log:time,level,tags:filecount=10,filesize=10M \
@@ -38,8 +41,8 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
 # ========== 目录 & 权限配置（通用） ==========
-RUN mkdir -p /opt/${PRO_NAME}/{logs,dumps} && \
-    groupadd -r vita && useradd -r -g vita vita && \
+RUN mkdir -p /opt/${PRO_NAME}/${SERVICE_NAME}/{logs/nacos,dumps} && \
+    groupadd -r vita && useradd -r -g vita -d /opt/vita vita && \
     chown -R vita:vita /opt/${PRO_NAME}
 
 EXPOSE 8023
