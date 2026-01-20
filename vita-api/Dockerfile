@@ -7,15 +7,13 @@ ENV PRO_NAME="vita"
 ENV SERVICE_NAME="vita-api"
 # 移除硬编码的ACTIVE_PROFILE，仅保留空默认值（运行时覆盖）
 ENV ACTIVE_PROFILE=""
-ENV NACOS_LOG_PATH="/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos"
-ENV USER_HOME="/opt/${PRO_NAME}"
 
 # JDK17通用JVM参数（无环境差异）
 ENV JAVA_OPTS="\
 -Xms512m -Xmx512m \
--Dnacos.logs.path=${NACOS_LOG_PATH} \
--Dcom.alibaba.nacos.logger.path=${NACOS_LOG_PATH} \
--Duser.home=${USER_HOME} \
+-Dnacos.logs.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
+-Dcom.alibaba.nacos.logger.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
+-Duser.home=/opt/${PRO_NAME}/${SERVICE_NAME} \
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=/opt/${PRO_NAME}/${SERVICE_NAME}/dumps/heap-dump.hprof \
 -Xlog:gc*:file=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/gc.log:time,level,tags:filecount=10,filesize=10M \
@@ -46,15 +44,15 @@ RUN mkdir -p /opt/${PRO_NAME}/${SERVICE_NAME}/{logs/nacos,dumps} && \
     chown -R vita:vita /opt/${PRO_NAME}
 
 EXPOSE 8023
-WORKDIR /opt/${PRO_NAME}
+WORKDIR /opt/${PRO_NAME}/${SERVICE_NAME}
 
 # ========== 复制JAR包（通用，无环境差异） ==========
-ADD target/*.jar /opt/${PRO_NAME}/${SERVICE_NAME}.jar
-RUN chown vita:vita /opt/${PRO_NAME}/${SERVICE_NAME}.jar && \
-    chmod 755 /opt/${PRO_NAME}/${SERVICE_NAME}.jar
+ADD target/*.jar /opt/${PRO_NAME}/${SERVICE_NAME}/${SERVICE_NAME}.jar
+RUN chown vita:vita /opt/${PRO_NAME}/${SERVICE_NAME}/${SERVICE_NAME}.jar && \
+    chmod 755 /opt/${PRO_NAME}/${SERVICE_NAME}/${SERVICE_NAME}.jar
 
 USER vita
 
 # ========== 启动命令（通用，依赖运行时环境变量） ==========
 # 若ACTIVE_PROFILE未指定，默认使用dev（可选，增加容错）
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar -Dspring.profiles.active=${ACTIVE_PROFILE:-dev} /opt/${PRO_NAME}/${SERVICE_NAME}.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar -Dspring.profiles.active=${ACTIVE_PROFILE:-dev} /opt/${PRO_NAME}/${SERVICE_NAME}/${SERVICE_NAME}.jar"]
