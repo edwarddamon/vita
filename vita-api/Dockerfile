@@ -10,18 +10,19 @@ ENV ACTIVE_PROFILE=""
 # JDK17通用JVM参数（无环境差异）
 ENV JAVA_OPTS="\
 -Xms512m -Xmx512m \
+-Dnacos.logs.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
+-Dcom.alibaba.nacos.logger.path=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/nacos \
+-Duser.home=/opt/${PRO_NAME} \
 -XX:+HeapDumpOnOutOfMemoryError \
--XX:HeapDumpPath=/opt/${PRO_NAME}/dumps/${SERVICE_NAME}/heap-dump.hprof \
--Xlog:gc*:file=/opt/${PRO_NAME}/logs/${SERVICE_NAME}/gc.log:time,level,tags:filecount=10,filesize=10M \
+-XX:HeapDumpPath=/opt/${PRO_NAME}/${SERVICE_NAME}/dumps/heap-dump.hprof \
+-Xlog:gc*:file=/opt/${PRO_NAME}/${SERVICE_NAME}/logs/gc.log:time,level,tags:filecount=10,filesize=10M \
 -XX:+UseG1GC \
 -XX:MaxGCPauseMillis=200 \
 -XX:+ParallelRefProcEnabled \
 -XX:+UnlockExperimentalVMOptions \
 -XX:+UseZGC \
 -Dfile.encoding=UTF-8 \
--Dsun.jnu.encoding=UTF-8 \
--Dnacos.logging.path=/opt/${PRO_NAME}/logs/nacos \
--Dnacos.logs.path=/opt/${PRO_NAME}/logs/nacos"
+-Dsun.jnu.encoding=UTF-8"
 
 # ========== 字符集 & 时区配置（通用） ==========
 RUN set -eux && \
