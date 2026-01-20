@@ -24,8 +24,8 @@ stages:
       - step: build@maven
         name: build_maven
         displayName: Maven 构建
-        jdkVersion: '8'
-        mavenVersion: 3.5.2
+        jdkVersion: '17'
+        mavenVersion: 3.9.11
         commands:
           - mvn clean install -pl ${SERVICE_NAME} -am -DskipTests
         artifacts:
