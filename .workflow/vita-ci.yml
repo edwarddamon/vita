@@ -1,6 +1,6 @@
 version: '1.0'
 name: vita-ci
-displayName: vita-ci
+displayName: vita-ci-sb2
 triggers:
   trigger: manual
   push:
