@@ -32,14 +32,6 @@ mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# 接口文档配置
-knife4j:
-  enable: true
-  basic:
-    enable: true
-    username: vita
-    password: vita
-
 # 日志级别
 logging:
   level:

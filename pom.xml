@@ -39,7 +39,6 @@
         <mybatis.plus.boot.version>3.5.15</mybatis.plus.boot.version>
         <velocity.engine.version>2.4.1</velocity.engine.version>
         <mysql.version>8.3.0</mysql.version>
-        <knife4j.version>4.5.0</knife4j.version>
         <hutool.version>5.8.43</hutool.version>
         <apache.common.version>3.14.0</apache.common.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -95,18 +94,6 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity-engine-core</artifactId>
                 <version>${velocity.engine.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
             </dependency>
 
             <dependency>

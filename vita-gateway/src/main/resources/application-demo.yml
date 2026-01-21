@@ -61,24 +61,6 @@ interface:
   url-token-to-header-list:
     - /im/ws/**
 
-# 接口文档配置
-knife4j:
-  gateway:
-    enabled: true
-    routes:
-      - name: 外部交互微服务
-        url: /api/v3/api-docs?group=default
-        service-name: vita-api
-        context-path: /api
-      - name: 认证中心微服务
-        url: /auth/v3/api-docs?group=default
-        service-name: vita-auth-center
-        context-path: /auth
-      - name: 消息微服务
-        url: /message/v3/api-docs?group=default
-        service-name: vita-message
-        context-path: /message
-
 # 日志级别
 logging:
   level:
