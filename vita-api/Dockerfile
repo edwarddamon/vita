@@ -40,7 +40,7 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 
 # ========== 目录 & 权限配置（通用） ==========
 RUN mkdir -p /opt/${PRO_NAME}/${SERVICE_NAME}/{logs/nacos,dumps} && \
-    groupadd -r vita && useradd -r -g vita -d /opt/vita vita && \
+    groupadd -r vita && useradd -r -g vita -d /opt/${PRO_NAME} vita && \
     chown -R vita:vita /opt/${PRO_NAME}
 
 EXPOSE 8023
