@@ -1,7 +1,10 @@
 package com.vita.common.domain.user;
 
+import com.vita.common.domain.role.RoleBO;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * @author Edward
@@ -21,4 +24,5 @@ public class UserInfoVO {
 
     private String email;
 
+    private List<RoleBO> roles;
 }

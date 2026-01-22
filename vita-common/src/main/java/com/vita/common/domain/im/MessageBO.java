@@ -75,6 +75,16 @@ public class MessageBO {
     }
 
     /**
+     * ACK消息构建
+     */
+    public static MessageBO generateAckMsg(String messageId, MsgStatusEnum status) {
+        return new MessageBO()
+                .setId(messageId)
+                .setType(MsgTypeEnum.ACK.name())
+                .setStatus(status.name());
+    }
+
+    /**
      * 更新时间
      */
     public MessageBO updateTime() {

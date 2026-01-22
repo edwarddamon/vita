@@ -41,9 +41,9 @@ public class UserController {
     /**
      * 用户信息查询
      */
-    @GetMapping(value = "/info")
-    public Result<UserInfoVO> info() {
-        return Result.success(userFacade.describeUserInfo());
+    @GetMapping(value = {"/info", "/info/{token}"})
+    public Result<UserInfoVO> info(@PathVariable(required = false) String token) {
+        return Result.success(userFacade.describeUserInfo(token));
     }
 
     /**

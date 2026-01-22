@@ -1,3 +1,4 @@
 com.vita.common.config.CommonAutoConfiguration
 com.vita.common.config.VitaAutoConfiguration
 com.vita.common.config.ThreadConfiguration
+com.vita.common.config.FeignAutoConfiguration

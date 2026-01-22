@@ -14,10 +14,18 @@ spring:
         password: nacos
         namespace: vita-dev
         group: dev
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: full
 
 # 日志级别
 logging:
   level:
+    feign: debug
     root: debug
 
 # 通用线程池

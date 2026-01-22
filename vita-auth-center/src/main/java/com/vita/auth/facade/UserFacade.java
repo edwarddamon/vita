@@ -26,7 +26,7 @@ public interface UserFacade {
      *
      * @return 当前登录用户信息
      */
-    UserInfoVO describeUserInfo();
+    UserInfoVO describeUserInfo(String token);
 
     /**
      * 退出登录

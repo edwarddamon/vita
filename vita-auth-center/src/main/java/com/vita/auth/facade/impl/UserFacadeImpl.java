@@ -1,6 +1,7 @@
 package com.vita.auth.facade.impl;
 
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -20,6 +21,7 @@ import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.common.enums.DelFlagEnum;
 import com.vita.common.domain.user.*;
 import com.vita.common.exception.ServiceException;
+import com.vita.common.utils.AssertUtil;
 import com.vita.common.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,15 +68,23 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
-    public UserInfoVO describeUserInfo() {
-        UserInfoBO currentUser = TokenUtil.getCurrentUser();
+    public UserInfoVO describeUserInfo(String token) {
+        UserInfoBO currentUser;
+        if (StrUtil.isBlank(token)) {
+            currentUser = TokenUtil.getCurrentUser();
+        } else {
+            String currentUserStr = redisTemplate.opsForValue().get(RedisKeyDict.USER_TOKEN + token);
+            currentUser = new Gson().fromJson(currentUserStr, UserInfoBO.class);
+        }
 
+        AssertUtil.notNullObject(currentUser, "用户不存在！");
         return new UserInfoVO()
                 .setUserId(currentUser.getUserId())
                 .setAvatar(currentUser.getAvatar())
                 .setUsername(currentUser.getUsername())
                 .setPhone(currentUser.getPhone())
-                .setEmail(currentUser.getEmail());
+                .setEmail(currentUser.getEmail())
+                .setRoles(currentUser.getRoles());
     }
 
     @Override
