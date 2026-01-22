@@ -25,8 +25,8 @@ spring:
 # 日志级别
 logging:
   level:
-    feign: debug
-    root: debug
+    root: info
+    com.vita.common.client: debug
 
 # 通用线程池
 vita:
