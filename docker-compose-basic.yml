@@ -50,7 +50,7 @@ services:
     image: nacos/nacos-server:v2.4.0
     container_name: nacos_v2
     #限制内存（强硬限制/告警软限制）
-    mem_limit: 1g
+    mem_limit: 1280m
     mem_reservation: 512m
     restart: always
     ports:
@@ -88,7 +88,7 @@ services:
     image: nacos/nacos-server:v3.0.3
     container_name: nacos_v3
     #限制内存（强硬限制/告警软限制）
-    mem_limit: 1g
+    mem_limit: 1280m
     mem_reservation: 512m
     restart: always
     ports:
