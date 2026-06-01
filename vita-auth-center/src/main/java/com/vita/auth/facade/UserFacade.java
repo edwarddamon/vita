@@ -1,10 +1,7 @@
 package com.vita.auth.facade;
 
 import com.vita.common.domain.PageResult;
-import com.vita.common.domain.user.ListUserInfoDTO;
-import com.vita.common.domain.user.ListUserInfoVO;
-import com.vita.common.domain.user.LoginDTO;
-import com.vita.common.domain.user.UserInfoVO;
+import com.vita.common.domain.user.*;
 
 import java.util.List;
 
@@ -40,4 +37,17 @@ public interface UserFacade {
      * @return 用户列表
      */
     PageResult<List<ListUserInfoVO>> listUser(ListUserInfoDTO listUserInfoDTO);
+
+    /**
+     * 新增用户
+     *
+     * @return 新用户id（String）
+     */
+    String createUser(CreateUserDTO createUserDTO);
+
+    void updateUser(EditUserDTO editUserDTO);
+
+    void deleteUser(Long id);
+
+    UserDetailVO getUserDetail(Long id);
 }

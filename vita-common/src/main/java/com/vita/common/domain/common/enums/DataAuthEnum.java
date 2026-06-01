@@ -12,12 +12,12 @@ import lombok.Getter;
 public enum DataAuthEnum {
 
     /**
-     * 只有操作自己数据的权限
-     */
+     * 仅自己
+     */ 
     OWNER,
 
     /**
-     * 可操作所有数据的权限
+     * 所有人
      */
     ALL
 }

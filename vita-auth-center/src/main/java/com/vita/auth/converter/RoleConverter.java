@@ -13,6 +13,7 @@ import org.mapstruct.factory.Mappers;
 public interface RoleConverter {
     RoleConverter INSTANCE = Mappers.getMapper(RoleConverter.class);
 
+    @Mapping(target = "id", source = "id", qualifiedByName = "longToString")
     RoleBO convertDoToBo(Role role);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "longToString")

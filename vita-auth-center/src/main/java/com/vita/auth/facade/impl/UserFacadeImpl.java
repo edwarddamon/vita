@@ -1,5 +1,6 @@
 package com.vita.auth.facade.impl;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
@@ -113,6 +114,30 @@ public class UserFacadeImpl implements UserFacade {
                         .stream()
                         .map(UserConverter.INSTANCE::convertDoToVo)
                         .collect(Collectors.toList()));
+    }
+
+    @Override
+    public String createUser(CreateUserDTO createUserDTO) {
+        return Convert.toStr(userService.createUser(createUserDTO));
+    }
+
+    @Override
+    public void updateUser(EditUserDTO editUserDTO) {
+        userService.updateUser(editUserDTO);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userService.deleteUser(id);
+    }
+
+    @Override
+    public UserDetailVO getUserDetail(Long id) {
+        User user = userService.getValidUser(id);
+        List<Role> roles = roleService.describeUserRoles(id);
+        UserDetailVO userDetailVO = UserConverter.INSTANCE.convertDoToDetailVo(user);
+        userDetailVO.setRoles(roles.stream().map(RoleConverter.INSTANCE::convertDoToBo).collect(Collectors.toList()));
+        return userDetailVO;
     }
 
     private String describeAndGenerateToken(User user, List<Role> roles) {
