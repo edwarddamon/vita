@@ -8,7 +8,7 @@ public class RoleListVO {
     /**
      * 角色id
      */
-    private Integer id;
+    private String id;
 
     /**
      * 角色code
