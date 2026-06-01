@@ -1,185 +1,226 @@
-# vita
-> vita 拉丁语：生命
+# Vita
 
-# 项目介绍
-> 项目描述：个人生活综合项目 — 基于 Spring Cloud 微服务架构的个人生活综合管理平台
+> **vita** — 拉丁语「生命」
 
-# 项目模块树形图
+基于 Spring Cloud 微服务架构的**个人生活综合管理平台**（当前版本 **2.0.0**）。
+
+---
+
+## 目录
+
+- [项目模块](#项目模块)
+- [架构设计](#架构设计)
+- [功能模块与 API](#功能模块与-api)
+- [技术栈](#技术栈)
+- [配置说明](#配置说明)
+- [本地开发](#本地开发)
+- [部署](#部署)
+- [开发状态](#开发状态)
+
+---
+
+## 项目模块
+
 ```
-├── README.md
-├── vita-api          // 外部交互服务 — SMTP邮件发送
-├── vita-auth-center  // 认证中心服务 — 用户/角色管理、登录/登出、Token管理
-├── vita-common       // 公共包（包含全局异常等SPI注入处理）
-├── vita-gateway      // 网关服务 — WebFlux认证过滤、路由转发
-├── vita-message      // 消息服务 — 邮件编排 + 发送记录持久化
-├── vita-im           // IM服务 — WebSocket即时通讯（早期开发阶段）
-├── docker-compose.yml
+vita/
+├── vita-common        # 公共包 — 全局异常、SPI 自动配置、Feign 客户端、通用 DTO/工具
+├── vita-gateway       # 网关 — WebFlux 认证过滤、路由转发、TraceId 注入
+├── vita-auth-center   # 认证中心 — 用户/角色管理、登录登出、Token 管理
+├── vita-api           # 外部交互 — SMTP 邮件实际发送
+├── vita-message       # 消息服务 — 邮件编排 + 发送记录持久化
+├── vita-im            # IM 服务 — WebSocket 即时通讯（基础能力已实现）
+├── docker-compose.yml         # 应用服务编排
+├── docker-compose-basic.yml   # 基础设施（MySQL / Redis / Nacos）
 └── pom.xml
 ```
 
-# 架构图
+---
 
-## 请求流转架构
+## 架构设计
 
-```
-客户端请求
-    ↓
-vita-gateway (8888)
-    ├── UrlTokenToHeaderFilter → URL中提取Token转为Authorization头
-    ├── AuthFilter → 验证Token(Redis)、白名单放行、注入UserInfo头
-    ↓ 路由转发（Nacos管理路由配置）
-    ├── vita-auth-center (8033) → 用户/角色操作
-    ├── vita-message (8043) → 邮件操作
-    │       ↓ Feign调用 (CommonFeignInterceptor传播traceId+UserInfo)
-    │       vita-api (8023) → 实际SMTP邮件发送
-    └── vita-im (8043) → WebSocket即时通讯
-```
-
-## 认证鉴权架构（多层防御）
+### 请求流转
 
 ```
-第一层 — 网关认证 (AuthFilter):
-    健康检查路径直接放行
-    Nacos白名单放行
-    其他请求必须携带 Authorization 头 (Token格式 vita.{UUID})
-    Token验证 → Redis查询 → 成功则续期+注入UserInfo头
-
-第二层 — 服务级权限拦截 (AuthPermissionHandlerInterceptor):
-    检查 @AuthPermission 注解
-    比对用户角色与注解要求 (COMMON_ROLE / ROOT_ROLE)
-    权限不足返回 405
-
-第三层 — Feign调用上下文传播 (CommonFeignInterceptor):
-    服务间调用自动传播 traceId 和 UserInfo 头
+客户端
+  ↓
+vita-gateway (:8888)
+  ├── TraceFilter          → 生成 traceId 并写入请求头
+  ├── UrlTokenToHeaderFilter → URL 末尾 Token 转为 Authorization 头
+  ├── AuthFilter           → Token 校验（Redis）、白名单放行、注入 UserInfo 头
+  ↓ 路由转发（Nacos / demo 本地路由）
+  ├── vita-auth-center (:8033)  → 用户 / 角色
+  ├── vita-message   (:8043)  → 邮件编排
+  │     ↓ Feign（CommonFeignInterceptor 传播 traceId + UserInfo）
+  │     vita-api (:8023)  → SMTP 实际发送
+  └── vita-im        (:8053)  → WebSocket 即时通讯
 ```
 
-## RBAC权限模型
+### 网关路由前缀（demo 本地配置）
+
+| 前缀 | 目标服务 | 示例 |
+|------|---------|------|
+| `/auth/**` | vita-auth-center | `POST /auth/user/login` |
+| `/message/**` | vita-message | `POST /message/email/send` |
+| `/api/**` | vita-api | `POST /api/mail/send` |
+| `/im/**` | vita-im（WebSocket） | `ws://host:8888/im/ws/{token}` |
+
+> 经网关访问时，路由会 StripPrefix 去掉前缀后再转发至下游服务。
+
+### 认证鉴权（三层防御）
+
+```
+第一层 — 网关 AuthFilter
+  · /health/check 直接放行
+  · Nacos 白名单 interface.white-list 放行
+  · 其余请求须携带 Authorization 头（Token 格式 vita.{UUID}）
+  · Redis 校验 Token → 续期 → 注入 UserInfo 请求头
+
+第二层 — 服务级 @AuthPermission 拦截器
+  · 比对用户角色与注解要求（COMMON_ROLE / ROOT_ROLE）
+  · 权限不足返回 HTTP 405
+
+第三层 — Feign CommonFeignInterceptor
+  · 服务间调用自动传播 traceId 与 UserInfo 头
+```
+
+### RBAC 权限模型
 
 ```
 User → UserRoleRel → Role → RoleInterface → InterfacePermission
 ```
-- `data_auth` 字段：OWNER(仅本人数据) / ALL(全部数据)
-- 接口级权限基础设施已存在，当前通过 `@AuthPermission` 注解实现角色校验
 
-# 功能模块
+- `data_auth` 字段：`OWNER`（仅本人数据）/ `ALL`（全部数据），角色 CRUD 已支持配置，业务层尚未强制执行
+- 接口级权限基础设施已存在，当前主要通过 `@AuthPermission` 注解做角色校验
 
-## 认证中心服务
-1. 用户、角色
-   - 网关 - 校验健康检查、白名单、是否登录
-   - 角色权限 - 拦截器+注解校验具体角色
+---
 
-### 用户管理
+## 功能模块与 API
+
+### 认证中心（vita-auth-center）
+
+#### 用户接口 — `/user`
 
 | API | 方法 | 路径 | 功能 | 权限 |
 |-----|------|------|------|------|
-| 用户登录 | POST | `/user/login` | 邮箱+密码登录，MD5校验，生成Token存入Redis(3天TTL) | 无 |
+| 用户登录 | POST | `/user/login` | 邮箱 + 密码登录，MD5 校验，生成 Token 存入 Redis（3 天 TTL） | 无 |
 | 用户信息 | GET | `/user/info` | 获取当前登录用户信息 | 已登录 |
-| 用户信息(指定Token) | GET | `/user/info/{token}` | 通过Token查询指定用户信息 | 已登录 |
-| 用户登出 | GET | `/user/logout` | 清除Redis中该用户所有Token | 已登录 |
-| 用户列表 | POST | `/user/list` | 分页查询用户（支持邮箱/手机/用户名筛选） | ROOT_ROLE |
+| 用户信息（指定 Token） | GET | `/user/info/{token}` | 通过 Token 查询指定用户信息 | 已登录 |
+| 用户登出 | GET | `/user/logout` | 清除 Redis 中该用户所有 Token（多设备同时登出） | 已登录 |
 
-### 角色管理
+#### 用户运维接口 — `/user/ops`（ROOT_ROLE）
 
-| API | 方法 | 路径 | 功能 | 权限 |
-|-----|------|------|------|------|
-| 角色列表 | GET | `/role/list` | 查询所有角色 | ROOT_ROLE |
-| 角色关联 | POST | `/role/associate` | 为用户分配角色（先删后插） | ROOT_ROLE |
+| API | 方法 | 路径 | 功能 |
+|-----|------|------|------|
+| 用户分页列表 | POST | `/user/ops/page` | 分页查询未删除用户（支持邮箱/手机/用户名筛选） |
+| 新增用户 | POST | `/user/ops/create` | 创建用户 |
+| 编辑用户 | POST | `/user/ops/update` | 更新用户信息 |
+| 删除用户 | POST | `/user/ops/delete` | 逻辑删除用户 |
+| 用户详情 | GET | `/user/ops/detail/{id}` | 查询用户详情（含角色） |
 
-### Token管理机制
-- Token格式: `vita.{UUID}`
-- Token存储: Redis键 `user:token:{token}` → UserInfoBO JSON，TTL 3天
-- 多会话追踪: Redis键 `user:online:{userId}` → Set<所有活跃Token>
-- 密码加密: MD5哈希 `vita.{原始密码}`
-- Token续期: 每次网关请求自动延长Token TTL
-- 登出: 删除用户所有Token（多设备同时登出）
+#### 角色接口 — `/role`（ROOT_ROLE）
 
-## 消息服务
-1. 邮件发送（邮件发送 → 发送记录存储）
+| API | 方法 | 路径 | 功能 |
+|-----|------|------|------|
+| 角色分页列表 | POST | `/role/page` | 分页查询角色 |
+| 新增角色 | POST | `/role/create` | 创建角色（含 data_auth） |
+| 编辑角色 | POST | `/role/update` | 更新角色 |
+| 删除角色 | POST | `/role/delete` | 逻辑删除角色 |
+| 角色关联 | POST | `/role/associate` | 为用户分配角色（先删后插） |
 
-### 邮件发送流程
+#### Token 机制
+
+| 项 | 说明 |
+|----|------|
+| Token 格式 | `vita.{UUID}` |
+| Redis 键 | `user:token:{token}` → UserInfoBO JSON，TTL 3 天 |
+| 多会话追踪 | `user:online:{userId}` → Set\<活跃 Token\> |
+| 密码加密 | MD5(`vita.{原始密码}`)，统一由 `PasswordUtil.encodePassword()` 处理 |
+| Token 续期 | 每次经网关的认证请求自动延长 TTL |
+
+---
+
+### 消息服务（vita-message）
+
+#### 邮件发送流程
 
 ```
-客户端 POST /email/send
-    → vita-message EmailFacadeImpl
-        → MailFeignClient.send() → vita-api MailServiceImpl (SMTP发送)
-        → vitaCommonTaskExecutor 异步保存 EmailRecord 到 MySQL
+POST /email/send
+  → EmailFacadeImpl
+      → MailFeignClient.send()  → vita-api MailServiceImpl（SMTP）
+      → vitaCommonTaskExecutor 异步持久化 EmailRecord 至 MySQL
 ```
 
 | API | 方法 | 路径 | 功能 |
 |-----|------|------|------|
-| 发送邮件 | POST | `/email/send` | 编排邮件发送：Feign调用vita-api发送 → 异步持久化发送记录 |
-| 邮件发送 | POST | `/mail/send` | 通过JavaMailSender发送MimeMessage(支持HTML) — vita-api |
+| 发送邮件 | POST | `/email/send` | 编排发送 + 异步落库 |
 
-参数校验: receiver(必填,≤64字符)、subject(必填,≤255字符)、content(必填)
+参数校验：`receiver`（必填，≤64）、`subject`（必填，≤255）、`content`（必填）
 
-## 网关服务
-- UrlTokenToHeaderFilter: 特定URL模式将路径末尾Token转为Authorization头（支持URL携带Token场景如WebSocket/文件下载）
-- AuthFilter: 全局认证过滤，白名单放行、Token验证、UserInfo注入
-- CorsConfig: 允许所有来源、头部、方法，支持凭证
+---
 
-## IM服务（早期开发阶段）
-- 已有 IMApplication 入口类 + WebSocket依赖
-- Feign/MapperScan注解已注释
-- 无Controller/Handler实现
+### 外部交互（vita-api）
 
-## 公共包 (vita-common)
+| API | 方法 | 路径 | 功能 |
+|-----|------|------|------|
+| 邮件发送 | POST | `/mail/send` | JavaMailSender 发送 MimeMessage（支持 HTML） |
 
-### SPI自动配置（注入所有Servlet服务）
+---
 
-通过 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 注册：
+### IM 服务（vita-im）
 
-| 自动配置类 | 注册内容 |
-|-----------|---------|
+- WebSocket 端点：`/ws/{token}`（经网关：`/im/ws/{token}`，需在 `url-token-to-header-list` 白名单中）
+- 握手阶段通过 Feign 调用认证中心校验 Token，将会话绑定 userId
+- 已实现：连接管理、文本消息广播（排除发送者）、消息 ACK
+- 待完善：点对点私聊、文件/音视频分片传输、消息持久化
+
+---
+
+### 公共包（vita-common）
+
+通过 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 自动注册：
+
+| 自动配置类 | 内容 |
+|-----------|------|
 | `CommonAutoConfiguration` | GlobalExceptionHandler + HealthController |
-| `VitaAutoConfiguration` | TraceId拦截器 + AuthPermission拦截器（仅Servlet服务） |
-| `ThreadConfiguration` | vitaCommonTaskExecutor线程池 |
-| `FeignAutoConfiguration` | FeignClient扫描 + CommonFeignInterceptor |
+| `VitaAutoConfiguration` | TraceId 拦截器 + AuthPermission 拦截器（仅 Servlet 服务） |
+| `ThreadConfiguration` | vitaCommonTaskExecutor 线程池 |
+| `FeignAutoConfiguration` | FeignClient 扫描 + CommonFeignInterceptor |
 
-### 通用功能
-- 全局异常处理（ServiceException、参数校验异常、兜底异常）
-- TraceId分布式追踪（MDC + 请求头传播）
-- AuthPermission注解鉴权拦截
-- Feign调用上下文传播
-- 健康检查端点 (`GET /health/check` 返回服务名 + "is healthy")
-- 通用线程池配置（CPU核心数动态计算）
-- 领域DTO/VO/BO定义
-- FeignClient（AuthCenterClient）
-- 工具类（AssertUtil、TokenUtil）
+通用能力：全局异常处理、TraceId 分布式追踪、健康检查（`GET /health/check`）、领域 DTO/VO/BO、AuthCenterClient、AssertUtil / TokenUtil / PasswordUtil。
 
-# 注意
-1. 涉及权限的改动必须下线所有用户
-2. 所有运行时配置存储在Nacos，本地无 application.yml / bootstrap.yml
-3. vita-common通过SPI机制自动注入，无需手动配置即可生效
-4. 网关使用WebFlux响应式栈（非Servlet），vita-common的拦截器仅对Servlet服务生效
-5. 密码采用MD5+前缀加密，Token采用UUID+前缀格式
+> 网关使用 WebFlux 响应式栈，vita-common 的 Servlet 拦截器**不对网关生效**。
 
-# 技术栈
+---
+
+## 技术栈
 
 | 分类 | 技术 | 版本 |
 |------|------|------|
 | 语言 | Java (JDK) | 17 |
 | 核心框架 | Spring Boot | 3.5.9 |
-| 微服务框架 | Spring Cloud | 2025.0.0 |
+| 微服务 | Spring Cloud | 2025.0.0 |
 | 微服务组件 | Spring Cloud Alibaba (Nacos) | 2025.0.0.0 |
 | 网关 | Spring Cloud Gateway (WebFlux) | — |
 | ORM | MyBatis Plus | 3.5.15 |
 | 对象映射 | MapStruct | 1.5.5.Final |
 | 服务调用 | OpenFeign | — |
 | 缓存 | Redis (Spring Data Redis) | — |
-| 邮件 | Spring Boot Mail (JavaMailSender) | — |
-| WebSocket | Spring Boot WebSocket | — (仅IM模块) |
+| 邮件 | Spring Boot Mail | — |
+| WebSocket | Spring Boot WebSocket | —（IM 模块） |
 | 工具库 | Hutool | 5.8.43 |
 | JSON | Gson | — |
 | 验证 | Jakarta Validation | — |
-| 模板引擎 | Velocity | 2.4.1 (代码生成) |
+| 模板引擎 | Velocity | 2.4.1（代码生成） |
 
----
-## 中间件
-- nacos 3.0.3
-- mysql 8.0.28
-- redis 6+
+### 中间件
 
-## 服务端口
+| 组件 | 版本                                                   |
+|------|------------------------------------------------------|
+| Nacos | 3.x（docker-compose-basic 提供 v2.4.0-sb2 / v3.2.1-sb3） |
+| MySQL | 8.0.28                                               |
+| Redis | 6+                                                   |
+
+### 服务端口
 
 | 服务 | 端口 |
 |------|------|
@@ -187,80 +228,137 @@ User → UserRoleRel → Role → RoleInterface → InterfacePermission
 | vita-auth-center | 8033 |
 | vita-api | 8023 |
 | vita-message | 8043 |
-| vita-im | 8043 |
+| vita-im | 8053 |
 
-# 分布式设计
+---
 
-## 日志体系
-- 每个服务独立 logback-spring.xml
-- 日志分离: info日志 + error日志独立文件
-- 滚动策略: 50MB大小触发滚动
-- Profile行为: dev仅控制台、test/prod控制台+文件
-- 日志格式包含traceId用于问题追踪
+## 配置说明
 
-# 项目部署方式
+项目**无**根级 `application.yml` / `bootstrap.yml`，采用 **Profile 分环境**策略：
 
-## 环境依赖
+| Profile | 用途        | 说明 |
+|---------|-----------|------|
+| `dev` | 联调 / 容器默认 | 仅配置 Nacos 地址，运行时配置从 Nacos 拉取 |
+| `demo` | 远程配置的demo | 内置数据源、Redis、网关路由等完整本地配置 |
+| `test` | 测试 / 生产容器 | 从 Nacos（`vita-test` 命名空间）拉取配置 |
 
-| 依赖 | 版本要求 |
-|------|---------|
-| JDK | 17+ |
-| Maven | 3.6+ |
-| Docker | 20+ |
-| Docker Compose | v2+ |
-| Nacos | 3.0.3 |
-| MySQL | 8.0.28 |
-| Redis | 6+ |
+Nacos 中需维护的配置项：
 
-## Nacos配置
-
-在Nacos配置中心（命名空间 vita-test）配置以下内容：
-
-- 各服务 application.yml（数据源、Redis连接、服务端口等）
+- 各服务 `application.yml`（数据源、Redis、端口等）
 - 网关路由规则
-- `interface.whiteList`（认证白名单路径）
-- `interface.urlTokenToHeaderList`（URL Token转换路径）
-- SMTP邮件配置（host、port、username、password）
-- 日志配置
+- `interface.white-list` — 认证白名单
+- `interface.url-token-to-header-list` — URL Token 转 Header 路径（如 WebSocket）
+- SMTP 邮件配置
+- 日志级别
 
-> [docker && docker compose 命令](https://docs.docker.com/engine/reference/commandline/compose/)
+### 注意事项
 
-## Docker Compose部署
+1. 涉及权限模型变更时，建议下线所有在线用户后重新登录
+2. vita-common 通过 SPI 自动注入，Servlet 服务引入依赖即可生效，无需手动配置
+3. 密码采用 MD5 + `vita.` 前缀；Token 采用 UUID + `vita.` 前缀
 
-```shell
-# 启动服务
-docker-compose -f docker-compose.yml up -d
-# 停止服务
-docker-compose -f docker-compose.yml stop
-# 停止并删除服务
-docker-compose -f docker-compose.yml down
-```
+---
 
-## 健康检查
+## 本地开发
+
+### 环境要求
+
+| 依赖 | 版本                        |
+|------|---------------------------|
+| JDK | 17+                       |
+| Maven | 3.6+                      |
+| MySQL | 8.0+                      |
+| Redis | 6+                        |
+| Nacos | 3.2.1（使用 `dev` Profile 时） |
+
+### 方式一：demo Profile 本地单机
+
+1. 启动 MySQL、Redis（可参考 `docker-compose-basic.yml` 中的中间件部分）
+2. 初始化业务数据库（demo 配置默认库名 `demo`）
+3. 编译并启动各服务：
 
 ```bash
-# 网关健康检查
-curl http://localhost:8888/health/check
+# 根目录编译
+mvn clean package -DskipTests
 
-# 各服务健康检查（需在白名单中配置）
-curl http://localhost:8033/health/check
-curl http://localhost:8023/health/check
-curl http://localhost:8043/health/check
+# 以 demo Profile 启动（示例：认证中心）
+cd vita-auth-center
+mvn spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
-# 开发状态总结
+4. 按依赖顺序启动：`vita-auth-center` → `vita-api` → `vita-message` → `vita-im` → `vita-gateway`
+
+### 方式二：dev Profile + Nacos
+
+1. 启动基础设施：`docker compose -f docker-compose-basic.yml up -d`
+2. 在 Nacos（命名空间 `vita-dev`，分组 `dev`）配置各服务
+3. 以 `dev` Profile 启动服务（Docker 默认即 `ACTIVE_PROFILE=dev`）
+
+### 健康检查
+
+```bash
+curl http://localhost:8888/health/check          # 网关
+curl http://localhost:8033/health/check          # 认证中心
+curl http://localhost:8023/health/check          # API
+curl http://localhost:8043/health/check          # 消息
+```
+
+---
+
+## 部署
+
+### 构建镜像
+
+各模块均包含 Dockerfile，需先打包 JAR：
+
+```bash
+mvn clean package -DskipTests
+docker build -t vita-auth-center:2.0.0 ./vita-auth-center
+# 其余模块同理
+```
+
+### Docker Compose 部署应用
+
+```bash
+# 启动
+docker compose -f docker-compose.yml up -d
+
+# 停止
+docker compose -f docker-compose.yml stop
+
+# 停止并移除
+docker compose -f docker-compose.yml down
+```
+
+> **注意**：`docker-compose.yml` 中 `vita-im` 与 `vita-message` 当前映射端口均为 `8043`，与代码中 IM 实际端口 `8053` 不一致，部署前请修正 IM 端口映射为 `8053:8053`。
+
+容器通过环境变量 `ACTIVE_PROFILE` 指定 Profile（Compose 中默认为 `test`）。
+
+---
+
+## 开发状态
 
 | 模块 | 状态 |
 |------|------|
-| vita-common | ✅ 完整实现 |
-| vita-gateway | ✅ 完整实现 |
-| vita-auth-center | ✅ 完整实现 |
-| vita-api | ✅ 部分实现（邮件发送） |
-| vita-message | ⚠️ 早期阶段（仅有依赖和入口类） |
-| vita-im | ⚠️ 早期开发（仅有依赖和入口类，核心注解已注释） |
+| vita-common | ✅ 完整 |
+| vita-gateway | ✅ 完整 |
+| vita-auth-center | ✅ 完整（用户/角色 CRUD + 认证） |
+| vita-api | ✅ 邮件发送 |
+| vita-message | ✅ 邮件编排 + 记录持久化 |
+| vita-im | ⚠️ 基础 WebSocket（广播 / ACK），私聊与持久化待完善 |
 
-**未实现功能**:
-- 数据级权限 `data_auth` 未在代码中强制执行
-- 接口级权限 `sys_interface_permission` 基础设施存在但未在Controller层使用
-- IM即时通讯功能未实现
-- 前端项目未包含在当前仓库
+**待实现**：
+
+- 数据级权限 `data_auth` 在业务查询层强制执行
+- 接口级权限 `sys_interface_permission` 与 Controller 层联动
+- IM 点对点消息、文件传输、消息落库
+- 前端项目不在本仓库
+
+---
+
+## 日志
+
+- 各服务独立 `logback-spring.xml`
+- info / error 日志分文件，单文件 50MB 滚动
+- Profile 行为：`dev` 仅控制台；`test` / `prod` 控制台 + 文件
+- 日志格式包含 traceId，便于链路追踪
