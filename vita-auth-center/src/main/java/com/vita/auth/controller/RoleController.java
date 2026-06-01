@@ -1,13 +1,15 @@
 package com.vita.auth.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vita.auth.converter.RoleConverter;
 import com.vita.auth.entity.Role;
 import com.vita.auth.service.RoleService;
 import com.vita.common.annotation.AuthPermission;
+import com.vita.common.domain.PageResult;
 import com.vita.common.domain.Result;
 import com.vita.common.domain.common.enums.RolePermissionCode;
-import com.vita.common.domain.role.RoleAssociateDTO;
-import com.vita.common.domain.role.RoleListVO;
+import com.vita.common.domain.role.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +33,50 @@ public class RoleController {
     private final RoleService roleService;
 
     /**
-     * 角色列表
+     * 角色列表分页
      */
-    @GetMapping(value = "/list")
+    @PostMapping(value = "/page")
     @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
-    public Result<List<RoleListVO>> roleList() {
-        List<Role> roleList = roleService.list();
-        return Result.success(roleList.stream().map(RoleConverter.INSTANCE::convertDoToVo).collect(Collectors.toList()));
+    public PageResult<List<RoleListVO>> roleList(@RequestBody ListRoleDTO listRoleDTO) {
+        IPage<Role> rolePage = roleService.listRole(new Page<>(listRoleDTO.getPageNum(), listRoleDTO.getPageSize()), listRoleDTO);
+        return PageResult.success(
+                rolePage.getCurrent(),
+                rolePage.getSize(),
+                rolePage.getTotal(),
+                rolePage.getRecords()
+                        .stream()
+                        .map(RoleConverter.INSTANCE::convertDoToVo)
+                        .collect(Collectors.toList()));
+    }
+
+    /**
+     * 新增角色
+     */
+    @PostMapping(value = "/create")
+    @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
+    public Result<Void> createRole(@RequestBody @Validated CreateRoleDTO createRoleDTO) {
+        roleService.createRole(createRoleDTO);
+        return Result.success();
+    }
+
+    /**
+     * 编辑角色
+     */
+    @PostMapping(value = "/update")
+    @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
+    public Result<Void> updateRole(@RequestBody @Validated EditRoleDTO editRoleDTO) {
+        roleService.updateRole(editRoleDTO);
+        return Result.success();
+    }
+
+    /**
+     * 删除角色
+     */
+    @PostMapping(value = "/delete")
+    @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
+    public Result<Void> deleteRole(@RequestBody @Validated DeleteRoleDTO deleteRoleDTO) {
+        roleService.deleteRole(deleteRoleDTO.getId());
+        return Result.success();
     }
 
     /**
