@@ -98,6 +98,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IS
     @Override
     public void deleteRole(Long id) {
         Role role = getValidRole(id);
+        long associatedUserCount = userRoleRelMapper.selectCount(new LambdaQueryWrapper<UserRoleRel>()
+                .eq(UserRoleRel::getRoleId, id));
+        AssertUtil.isTrue(associatedUserCount == 0, "该角色已被用户绑定，无法删除");
+
         role.setDelFlag(DelFlagEnum.DELETED.getFlag());
         role.setUpdateTime(LocalDateTime.now());
         AssertUtil.isTrue(updateById(role), "删除角色失败");

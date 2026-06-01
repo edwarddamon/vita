@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vita.auth.entity.User;
 import com.vita.auth.mapper.UserMapper;
+import com.vita.auth.mapper.UserRoleRelMapper;
 import com.vita.auth.service.UserService;
 import com.vita.common.domain.common.enums.DelFlagEnum;
 import com.vita.common.domain.user.CreateUserDTO;
@@ -35,6 +36,7 @@ import java.util.Set;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final UserMapper userMapper;
+    private final UserRoleRelMapper userRoleRelMapper;
 
     @Override
     public Set<InterfaceInfoBO> describeInterfaces(Long userId) {
@@ -87,9 +89,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void deleteUser(Long id) {
         User user = getValidUser(id);
+        userRoleRelMapper.deleteUserRoleRel(id);
+
         user.setDelFlag(DelFlagEnum.DELETED.getFlag());
         user.setUpdateTime(LocalDateTime.now());
-
         AssertUtil.isTrue(updateById(user), "删除用户失败");
     }
 
