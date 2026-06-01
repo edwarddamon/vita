@@ -27,7 +27,7 @@ public class UserOpsController {
     /**
      * 用户列表分页
      */
-    @PostMapping(value = "/list")
+    @PostMapping(value = "/page")
     @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
     public PageResult<List<ListUserInfoVO>> listUser(@RequestBody ListUserInfoDTO listUserInfoDTO) {
         return userFacade.listUser(listUserInfoDTO);
