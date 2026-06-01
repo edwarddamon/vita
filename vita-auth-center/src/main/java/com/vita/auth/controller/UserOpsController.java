@@ -25,7 +25,7 @@ public class UserOpsController {
     private final UserFacade userFacade;
 
     /**
-     * 用户列表分页
+     * 用户列表分页（仅未删除用户）
      */
     @PostMapping(value = "/page")
     @AuthPermission(role = RolePermissionCode.ROOT_ROLE)
