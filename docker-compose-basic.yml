@@ -65,13 +65,14 @@ services:
       NACOS_AUTH_IDENTITY_KEY: identityKey
       NACOS_AUTH_IDENTITY_VALUE: identityValue
       SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: nacos.example.com
+      MYSQL_SERVICE_HOST: 127.0.0.1
       MYSQL_SERVICE_PORT: 3366
       MYSQL_SERVICE_USER: nacos_config
       MYSQL_SERVICE_PASSWORD: 'changeme_nacos'
       MYSQL_SERVICE_DB_NAME: nacos_config
       MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     volumes:
+      - /opt/service_basic/nacos_v2/conf/:/home/nacos/conf
       - /opt/service_basic/nacos_v2/logs/:/home/nacos/logs
     privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
     logging:
@@ -104,14 +105,14 @@ services:
       NACOS_AUTH_IDENTITY_KEY: identityKey
       NACOS_AUTH_IDENTITY_VALUE: identityValue
       SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: nacos.example.com
+      MYSQL_SERVICE_HOST: 127.0.0.1
       MYSQL_SERVICE_PORT: 3366
       MYSQL_SERVICE_USER: nacos_config
       MYSQL_SERVICE_PASSWORD: 'changeme_nacos'
       MYSQL_SERVICE_DB_NAME: nacos_config_v3
       MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     volumes:
-      # 挂载nacos日志目录，持久化日志，方便排查问题
+      - /opt/service_basic/nacos_v3/conf/:/home/nacos/conf
       - /opt/service_basic/nacos_v3/logs/:/home/nacos/logs
     privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
     logging:
