@@ -1,23 +1,23 @@
+# 本地/演示用基础设施编排。敏感信息通过 .env 注入，参考 .env.example.properties。
 services:
   mysql:
     image: mysql:8.0.28
     container_name: mysql
-    #限制内存（强硬限制/告警软限制）
     mem_limit: 512m
     mem_reservation: 256m
     restart: always
     ports:
-      - "3366:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: 'changeme_mysql_root'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme_mysql_root}
     volumes:
-      - /opt/service_basic/mysql/conf:/etc/mysql/conf.d
-      - /opt/service_basic/mysql/data:/var/lib/mysql
-      - /opt/service_basic/mysql/logs:/var/log/mysql
-    privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+      - ${DATA_DIR:-./data}/mysql/conf:/etc/mysql/conf.d
+      - ${DATA_DIR:-./data}/mysql/data:/var/lib/mysql
+      - ${DATA_DIR:-./data}/mysql/logs:/var/log/mysql
+    privileged: true
     logging:
-      driver: "json-file" # 默认的文件日志驱动
+      driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
@@ -26,21 +26,20 @@ services:
   redis:
     image: redis:5.0
     container_name: redis
-    #限制内存（强硬限制/告警软限制）
     mem_limit: 128m
     mem_reservation: 64m
     restart: always
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - /opt/service_basic/redis/data:/data
-      - /opt/service_basic/redis/conf/redis.conf:/etc/redis/redis.conf
+      - ${DATA_DIR:-./data}/redis/data:/data
+      - ${DATA_DIR:-./data}/redis/conf/redis.conf:/etc/redis/redis.conf
     ports:
-      - "6399:6379"
-    command: /bin/sh -c "redis-server /etc/redis/redis.conf --requirepass changeme_redis"
+      - "${REDIS_PORT:-6379}:6379"
+    command: /bin/sh -c "redis-server /etc/redis/redis.conf --requirepass ${REDIS_PASSWORD:-changeme_redis}"
     privileged: true
     logging:
-      driver: "json-file" # 默认的文件日志驱动
+      driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
@@ -49,34 +48,33 @@ services:
   nacos_v2:
     image: nacos/nacos-server:v2.4.0
     container_name: nacos_v2
-    #限制内存（强硬限制/告警软限制）
     mem_limit: 1280m
     mem_reservation: 512m
     restart: always
     ports:
-      - 8828:8848
-      - 9828:9848
-      - 9829:9849
+      - ${NACOS_V2_HTTP_PORT:-8848}:8848
+      - ${NACOS_V2_GRPC_PORT:-9848}:9848
+      - ${NACOS_V2_GRPC_PORT2:-9849}:9849
     environment:
       TZ: Asia/Shanghai
       MODE: standalone
       NACOS_AUTH_ENABLE: true
-      NACOS_AUTH_TOKEN: 'changeme_nacos_auth_token='
-      NACOS_AUTH_IDENTITY_KEY: identityKey
-      NACOS_AUTH_IDENTITY_VALUE: identityValue
+      NACOS_AUTH_TOKEN: ${NACOS_V2_AUTH_TOKEN:-changeme_nacos_auth_token}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_V2_AUTH_IDENTITY_KEY:-identityKey}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_V2_AUTH_IDENTITY_VALUE:-identityValue}
       SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: 127.0.0.1
-      MYSQL_SERVICE_PORT: 3366
-      MYSQL_SERVICE_USER: nacos_config
-      MYSQL_SERVICE_PASSWORD: 'changeme_nacos'
-      MYSQL_SERVICE_DB_NAME: nacos_config
+      MYSQL_SERVICE_HOST: ${NACOS_V2_MYSQL_SERVICE_HOST:-mysql}
+      MYSQL_SERVICE_PORT: ${NACOS_V2_MYSQL_SERVICE_PORT:-3306}
+      MYSQL_SERVICE_USER: ${NACOS_V2_DB_USER:-nacos}
+      MYSQL_SERVICE_PASSWORD: ${NACOS_V2_DB_PASSWORD:-changeme_nacos}
+      MYSQL_SERVICE_DB_NAME: ${NACOS_V2_DB_NAME:-nacos_config}
       MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     volumes:
-      - /opt/service_basic/nacos_v2/conf/:/home/nacos/conf
-      - /opt/service_basic/nacos_v2/logs/:/home/nacos/logs
-    privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+      - ${DATA_DIR:-./data}/nacos_v2/conf/:/home/nacos/conf
+      - ${DATA_DIR:-./data}/nacos_v2/logs/:/home/nacos/logs
+    privileged: true
     logging:
-      driver: "json-file" # 默认的文件日志驱动
+      driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
@@ -88,35 +86,34 @@ services:
   nacos_v3:
     image: nacos/nacos-server:v3.2.1
     container_name: nacos_v3
-    #限制内存（强硬限制/告警软限制）
     mem_limit: 1280m
     mem_reservation: 512m
     restart: always
     ports:
-      - 7080:8080
-      - 8838:8848
-      - 9838:9848
-      - 9839:9849
+      - ${NACOS_V3_CONSOLE_PORT:-8080}:8080
+      - ${NACOS_V3_HTTP_PORT:-8848}:8848
+      - ${NACOS_V3_GRPC_PORT:-9848}:9848
+      - ${NACOS_V3_GRPC_PORT2:-9849}:9849
     environment:
       TZ: Asia/Shanghai
       MODE: standalone
       NACOS_AUTH_ENABLE: true
-      NACOS_AUTH_TOKEN: 'changeme_nacos_auth_token='
-      NACOS_AUTH_IDENTITY_KEY: identityKey
-      NACOS_AUTH_IDENTITY_VALUE: identityValue
+      NACOS_AUTH_TOKEN: ${NACOS_V3_AUTH_TOKEN:-changeme_nacos_auth_token}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_V3_AUTH_IDENTITY_KEY:-identityKey}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_V3_AUTH_IDENTITY_VALUE:-identityValue}
       SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: 127.0.0.1
-      MYSQL_SERVICE_PORT: 3366
-      MYSQL_SERVICE_USER: nacos_config
-      MYSQL_SERVICE_PASSWORD: 'changeme_nacos'
-      MYSQL_SERVICE_DB_NAME: nacos_config_v3
+      MYSQL_SERVICE_HOST: ${NACOS_V3_MYSQL_SERVICE_HOST:-mysql}
+      MYSQL_SERVICE_PORT: ${NACOS_V3_MYSQL_SERVICE_PORT:-3306}
+      MYSQL_SERVICE_USER: ${NACOS_V3_DB_USER:-nacos}
+      MYSQL_SERVICE_PASSWORD: ${NACOS_V3_DB_PASSWORD:-changeme_nacos}
+      MYSQL_SERVICE_DB_NAME: ${NACOS_V3_DB_NAME:-nacos_config_v3}
       MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     volumes:
-      - /opt/service_basic/nacos_v3/conf/:/home/nacos/conf
-      - /opt/service_basic/nacos_v3/logs/:/home/nacos/logs
-    privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
+      - ${DATA_DIR:-./data}/nacos_v3/conf/:/home/nacos/conf
+      - ${DATA_DIR:-./data}/nacos_v3/logs/:/home/nacos/logs
+    privileged: true
     logging:
-      driver: "json-file" # 默认的文件日志驱动
+      driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
