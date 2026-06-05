@@ -6,9 +6,11 @@ set -euo pipefail
 #   export DOCKER_REGISTRY=registry.example.com
 #   export DOCKER_NAMESPACE=vita
 modules=(
-  "vita-api"
-  "vita-auth-center"
   "vita-gateway"
+  "vita-auth-center"
+  "vita-api"
+  "vita-message"
+  "vita-im"
 )
 
 remoteRepository="${DOCKER_REGISTRY:-registry.example.com}"

@@ -13,8 +13,14 @@
 - [功能模块与 API](#功能模块与-api)
 - [技术栈](#技术栈)
 - [配置说明](#配置说明)
+  - [Profile 与环境变量](#profile-与环境变量)
+  - [Nacos 配置中心](#nacos-配置中心)
+  - [服务注册元数据](#服务注册元数据)
 - [本地开发](#本地开发)
 - [部署](#部署)
+  - [环境文件](#环境文件)
+  - [构建与推送镜像](#构建与推送镜像)
+  - [Docker Compose 部署](#docker-compose-部署)
 - [开发状态](#开发状态)
 
 ---
@@ -29,8 +35,10 @@ vita/
 ├── vita-api           # 外部交互 — SMTP 邮件实际发送
 ├── vita-message       # 消息服务 — 邮件编排 + 发送记录持久化
 ├── vita-im            # IM 服务 — WebSocket 即时通讯（基础能力已实现）
-├── docker-compose.yml         # 应用服务编排
-├── docker-compose-basic.yml   # 基础设施（MySQL / Redis / Nacos）
+├── docker-compose.yml           # 应用服务编排
+├── docker-compose-basic.yml     # 基础设施（MySQL / Redis / Nacos）
+├── docker-deploy.sh             # 批量构建并推送镜像
+├── .env.example.properties      # Compose 环境变量模板（复制为 .env 使用）
 └── pom.xml
 ```
 
@@ -234,28 +242,80 @@ POST /email/send
 
 ## 配置说明
 
-项目**无**根级 `application.yml` / `bootstrap.yml`，采用 **Profile 分环境**策略：
+项目**无**根级 `application.yml` / `bootstrap.yml`，采用 **Profile + 环境变量 + Nacos** 三层分环境策略：
 
-| Profile | 用途        | 说明 |
-|---------|-----------|------|
-| `dev` | 联调 / 容器默认 | 仅配置 Nacos 地址，运行时配置从 Nacos 拉取 |
-| `demo` | 远程配置的demo | 内置数据源、Redis、网关路由等完整本地配置 |
-| `test` | 测试 / 生产容器 | 从 Nacos（`vita-test` 命名空间）拉取配置 |
+| 层级 | 位置 | 职责 |
+|------|------|------|
+| Profile 骨架 | 各模块 `application-{profile}.yml`（打进 JAR） | 定义如何连接 Nacos、是否使用本地内置配置 |
+| 发布参数 | `.env` / 容器环境变量 | 切换 Profile、注入 Nacos 地址与命名空间 |
+| 业务配置 | Nacos 各环境独立 namespace | 数据源、Redis、路由、白名单等运行时配置 |
+
+### Profile 与环境变量
+
+各服务均提供 `application-dev.yml`、`application-demo.yml`、`application-test.yml`、`application-prod.yml`。
+
+| Profile | 用途 | 本地 yml 内容 | 典型场景 |
+|---------|------|--------------|----------|
+| `dev` | 本地联调 | 写死 Nacos 地址（`vita-dev` / `dev`） | IDEA / `mvn spring-boot:run` 连本地 Nacos |
+| `demo` | 单机演示 | 完整内置配置（数据源、Redis、路由等） | 不启 Nacos，快速本地跑通 |
+| `test` | 测试环境 | `${NACOS_*}` 占位符，由环境变量注入 | 测试服务器 / 质检发布 |
+| `prod` | 生产环境 | 同 `test`，通过不同 `.env` 区分 namespace | 生产发布 |
+
+**容器启动**：Dockerfile 通过 `ACTIVE_PROFILE` 指定 Profile，未设置时默认 `dev`：
+
+```bash
+-Dspring.profiles.active=${ACTIVE_PROFILE:-dev}
+```
+
+**测试 / 生产必填环境变量**（`test` / `prod` Profile）：
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `NACOS_SERVER_ADDR` | Nacos 地址 | `127.0.0.1:8838` |
+| `NACOS_USERNAME` | 认证用户名 | `nacos` |
+| `NACOS_PASSWORD` | 认证密码 | — |
+| `NACOS_NAMESPACE` | 命名空间 ID | `vita-test` / `vita-prod` |
+| `NACOS_GROUP` | 配置分组 | `test` / `prod` |
+
+### Nacos 配置中心
+
+按环境在 Nacos 控制台创建独立 **namespace**，推荐命名：
+
+| 环境 | Namespace | Group | 说明 |
+|------|-----------|-------|------|
+| 开发 | `vita-dev` | `dev` | 本地联调，`dev` Profile 默认连接 |
+| 测试 | `vita-test` | `test` | 质检 / 测试发布 |
+| 生产 | `vita-prod` | `prod` | 生产发布 |
+
+每个服务在对应 namespace 下维护 **Data ID = `{服务名}.yml`**（如 `vita-api.yml`），`application-test.yml` / `application-prod.yml` 通过 `spring.config.import` 拉取。
 
 Nacos 中需维护的配置项：
 
-- 各服务 `application.yml`（数据源、Redis、端口等）
+- 各服务完整配置（数据源、Redis、端口、Discovery 等）
 - 网关路由规则
 - `interface.white-list` — 认证白名单
 - `interface.url-token-to-header-list` — URL Token 转 Header 路径（如 WebSocket）
 - SMTP 邮件配置
 - 日志级别
 
+### 服务注册元数据
+
+各服务 `NacosConfiguration` 在注册时将当前环境写入实例元数据，可在 Nacos 控制台 **服务列表 → 实例详情 → 元数据** 查看：
+
+| 元数据键 | 来源 | 说明 |
+|----------|------|------|
+| `env` | `spring.profiles.active` | 当前 Profile（`dev` / `test` / `prod` 等） |
+| `version` | `app.version` | 应用版本号 |
+| `startup.time` | 启动时刻 | ISO 8601 格式启动时间 |
+
+确保元数据 `env` 与目标环境一致：发布时设置正确的 `ACTIVE_PROFILE`，并使用独立 Nacos namespace 隔离各环境实例。
+
 ### 注意事项
 
 1. 涉及权限模型变更时，建议下线所有在线用户后重新登录
 2. vita-common 通过 SPI 自动注入，Servlet 服务引入依赖即可生效，无需手动配置
 3. 密码采用 MD5 + `vita.` 前缀；Token 采用 UUID + `vita.` 前缀
+4. 同一套镜像可用于各环境，**无需为环境打不同 JAR**；切换环境只需更换 `.env` 中的 `ACTIVE_PROFILE` 与 `NACOS_*`
 
 ---
 
@@ -290,9 +350,20 @@ mvn spring-boot:run -Dspring-boot.run.profiles=demo
 
 ### 方式二：dev Profile + Nacos
 
-1. 启动基础设施：`docker compose -f docker-compose-basic.yml up -d`
-2. 在 Nacos（命名空间 `vita-dev`，分组 `dev`）配置各服务
-3. 以 `dev` Profile 启动服务（Docker 默认即 `ACTIVE_PROFILE=dev`）
+1. 复制环境模板并启动基础设施：
+
+```bash
+cp .env.example.properties .env
+docker compose -f docker-compose-basic.yml --env-file .env up -d
+```
+
+2. 访问 Nacos 控制台（v3 默认 `http://localhost:7080`，端口见 `.env` 中 `NACOS_V3_CONSOLE_PORT`）
+3. 在命名空间 `vita-dev`、分组 `dev` 下配置各服务 `{服务名}.yml`
+4. 以 `dev` Profile 启动（本地 IDEA 或 Maven；容器未设 `ACTIVE_PROFILE` 时 Dockerfile 默认 `dev`）：
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
 ### 健康检查
 
@@ -301,38 +372,99 @@ curl http://localhost:8888/health/check          # 网关
 curl http://localhost:8033/health/check          # 认证中心
 curl http://localhost:8023/health/check          # API
 curl http://localhost:8043/health/check          # 消息
+curl http://localhost:8053/health/check          # IM
 ```
 
 ---
 
 ## 部署
 
-### 构建镜像
+### 环境文件
 
-各模块均包含 Dockerfile，需先打包 JAR：
+复制模板并按目标环境修改：
 
 ```bash
-mvn clean package -DskipTests
-docker build -t vita-auth-center:2.0.0 ./vita-auth-center
-# 其余模块同理
+cp .env.example.properties .env
 ```
 
-### Docker Compose 部署应用
+关键变量说明见 [Profile 与环境变量](#profile-与环境变量)。测试与生产建议使用**不同 `.env` 文件**发布，仅修改 `ACTIVE_PROFILE` 与 `NACOS_*`：
+
+```properties
+# .env.test
+ACTIVE_PROFILE=test
+NACOS_SERVER_ADDR=nacos.test.internal:8838
+NACOS_NAMESPACE=vita-test
+NACOS_GROUP=test
+
+# .env.prod
+ACTIVE_PROFILE=prod
+NACOS_SERVER_ADDR=nacos.prod.internal:8838
+NACOS_NAMESPACE=vita-prod
+NACOS_GROUP=prod
+```
+
+### 构建与推送镜像
+
+各模块均包含 Dockerfile，需先打包 JAR 再构建镜像：
 
 ```bash
-# 启动
-docker compose -f docker-compose.yml up -d
+# 根目录编译全部模块
+mvn clean package -DskipTests
 
+# 单模块构建（示例）
+docker build -t vita-gateway:2.0.0 ./vita-gateway
+docker build -t vita-auth-center:2.0.0 ./vita-auth-center
+docker build -t vita-api:2.0.0 ./vita-api
+docker build -t vita-message:2.0.0 ./vita-message
+docker build -t vita-im:2.0.0 ./vita-im
+```
+
+批量构建并推送到私有仓库（需先配置 `DOCKER_REGISTRY` / `DOCKER_NAMESPACE`）：
+
+```bash
+export DOCKER_REGISTRY=registry.example.com
+export DOCKER_NAMESPACE=vita
+./docker-deploy.sh
+```
+
+`docker-deploy.sh` 会依次处理 `vita-gateway`、`vita-auth-center`、`vita-api`、`vita-message`、`vita-im`，镜像 tag 为时间戳 `YYYYMMDD_HHMM`。
+
+### Docker Compose 部署
+
+**1. 启动基础设施**（MySQL / Redis / Nacos）：
+
+```bash
+docker compose -f docker-compose-basic.yml --env-file .env up -d
+```
+
+**2. 在 Nacos 对应 namespace 配置各服务**（测试环境示例：`vita-test` / `test`）
+
+**3. 启动应用服务**：
+
+```bash
+# 测试环境
+docker compose -f docker-compose.yml --env-file .env up -d
+
+# 或指定环境文件
+docker compose -f docker-compose.yml --env-file .env.prod up -d
+```
+
+`docker-compose.yml` 向所有服务统一注入 `ACTIVE_PROFILE` 与 `NACOS_*` 环境变量，默认 `ACTIVE_PROFILE=test`。
+
+```bash
 # 停止
-docker compose -f docker-compose.yml stop
+docker compose -f docker-compose.yml --env-file .env stop
 
 # 停止并移除
-docker compose -f docker-compose.yml down
+docker compose -f docker-compose.yml --env-file .env down
+
+# 查看某服务日志
+docker compose -f docker-compose.yml logs -f vita-gateway
 ```
 
-> **注意**：`docker-compose.yml` 中 `vita-im` 与 `vita-message` 当前映射端口均为 `8043`，与代码中 IM 实际端口 `8053` 不一致，部署前请修正 IM 端口映射为 `8053:8053`。
+**本地 demo 模式**（不依赖 Nacos）：在 `.env` 中设置 `ACTIVE_PROFILE=demo`，各服务使用 `application-demo.yml` 内置配置即可启动。
 
-容器通过环境变量 `ACTIVE_PROFILE` 指定 Profile（Compose 中默认为 `test`）。
+**发布检查**：在 Nacos 服务列表确认实例元数据 `env` 字段与目标环境一致（`test` / `prod`）。
 
 ---
 

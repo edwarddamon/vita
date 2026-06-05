@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: vita-message
+  cloud:
+    nacos:
+      config:
+        server-addr: ${NACOS_SERVER_ADDR}
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+        namespace: ${NACOS_NAMESPACE}
+        group: ${NACOS_GROUP}
+        file-extension: yml
+
+  config:
+    import:
+    - nacos:${spring.application.name}.${spring.cloud.nacos.config.file-extension}?group=${spring.cloud.nacos.config.group}&namespace=${spring.cloud.nacos.config.namespace}
+
+app:
+  version: @project.version@
