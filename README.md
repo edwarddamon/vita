@@ -22,7 +22,7 @@
   - [构建与推送镜像](#构建与推送镜像)
   - [Docker Compose 部署](#docker-compose-部署)
 - [开发状态](#开发状态)
-
+- [前端项目地址](#前端项目地址)
 ---
 
 ## 项目模块
@@ -494,3 +494,6 @@ docker compose -f docker-compose.yml logs -f vita-gateway
 - info / error 日志分文件，单文件 50MB 滚动
 - Profile 行为：`dev` 仅控制台；`test` / `prod` 控制台 + 文件
 - 日志格式包含 traceId，便于链路追踪
+
+## 前端项目地址：
+[gitlab 地址](https://gitee.com/edwarddamon/vita-web): https://gitee.com/edwarddamon/vita-web
