@@ -1,7 +1,7 @@
 package com.vita.auth.test;
 
 import cn.hutool.crypto.SecureUtil;
-import com.vita.common.domain.common.constant.CommonConstant;
+import com.vita.common.utils.PasswordUtil;
 
 /**
  * @author Edward
@@ -9,6 +9,7 @@ import com.vita.common.domain.common.constant.CommonConstant;
  */
 public class SecurityTest {
     public static void main(String[] args) {
-        System.out.println(SecureUtil.md5(CommonConstant.AUTHORIZATION_PREFIX + SecureUtil.md5("123456")));
+        // 密码加密
+        System.out.println(PasswordUtil.encodePassword(SecureUtil.md5("123456")));
     }
 }

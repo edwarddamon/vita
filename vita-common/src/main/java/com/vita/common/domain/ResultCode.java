@@ -19,6 +19,11 @@ public enum ResultCode {
     FAIL(1000, "系统异常"),
 
     /**
+     * 参数校验异常状态码
+     */
+    PARAM_CHECK_EXCEPTION(400, "param.check.exception"),
+
+    /**
      * 未登录
      */
     UNAUTHORIZED(401, "请登录后操作！"),
@@ -32,11 +37,6 @@ public enum ResultCode {
      * 权限不足
      */
     NO_INTERFACE_PERMISSION(405, "您的权限不足！"),
-
-    /**
-     * 参数校验异常状态码
-     */
-    PARAM_CHECK_EXCEPTION(600, "param.check.exception"),
 
     ;
 

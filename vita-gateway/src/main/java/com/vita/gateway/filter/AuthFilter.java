@@ -7,10 +7,10 @@ import com.vita.common.domain.common.constant.HttpConstant;
 import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.user.UserInfoBO;
 import com.vita.common.exception.ServiceException;
-import com.vita.gateway.config.properties.InterfaceWhiteListProperties;
+import com.vita.gateway.config.properties.InterfaceProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -33,11 +33,10 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class AuthFilter implements GlobalFilter, Ordered {
-    public static final String API_DOCS = "api-docs";
     private static final String HEATH_CHECK = "/health/check";
 
     private final StringRedisTemplate redisTemplate;
-    private final InterfaceWhiteListProperties whiteListProperties;
+    private final InterfaceProperties whiteListProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -45,7 +44,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         final ServerHttpRequest request = exchange.getRequest();
         final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-        // 校验是否为无需鉴权的接口（swagger、健康检查、白名单接口）
+        // 校验是否为无需鉴权的接口（健康检查、白名单接口）
         boolean unAuth = validateUnAuth(request, antPathMatcher);
         if (unAuth) {
             return chain.filter(exchange);
@@ -102,8 +101,8 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private boolean validateUnAuth(ServerHttpRequest request, AntPathMatcher antPathMatcher) {
         String path = request.getURI().getPath();
 
-        // swagger && 健康检查
-        if (path.contains(API_DOCS) || path.contains(HEATH_CHECK)) {
+        // 健康检查
+        if (path.contains(HEATH_CHECK)) {
             return true;
         }
 
@@ -118,6 +117,6 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 10;
+        return HIGHEST_PRECEDENCE + 20;
     }
 }

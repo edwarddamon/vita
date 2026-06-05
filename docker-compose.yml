@@ -1,73 +1,100 @@
-version: "3"
+# 应用服务编排。镜像名与数据目录通过 .env 配置，参考 .env.example.properties。
 services:
   vita-gateway:
-    image: xxxxx/vita-gateway:1.0.0
+    image: ${VITA_GATEWAY_IMAGE:-vita-gateway:latest}
     container_name: vita-gateway
     restart: always
     ports:
-      - "8888:8888"
+      - "${VITA_GATEWAY_PORT:-8888}:8888"
     environment:
-#      - JAVA_OPTS=-Xms256m -Xmx512m
-      - ACTIVE_PROFILE=test
+      - ACTIVE_PROFILE=${ACTIVE_PROFILE:-test}
     volumes:
-      - /opt/vita/vita-gateway/logs:/opt/vita/logs/
-      - /opt/vita/vita-gateway/dumps:/opt/vita/dumps/
+      - ${VITA_DATA_DIR:-./logs}/vita-gateway/logs:/opt/vita/logs/
+      - ${VITA_DATA_DIR:-./logs}/vita-gateway/dumps:/opt/vita/dumps/
     logging:
-      driver: "json-file" # 默认的文件日志驱动
+      driver: "json-file"
       options:
         max-size: "50m"
         max-file: "1"
+        compress: "true"
 
   vita-auth-center:
-    image: xxxxx/vita-auth-center:1.0.0
+    image: ${VITA_AUTH_CENTER_IMAGE:-vita-auth-center:latest}
     container_name: vita-auth-center
     restart: always
     ports:
-      - "8033:8033"
+      - "${VITA_AUTH_CENTER_PORT:-8033}:8033"
     environment:
-#      - JAVA_OPTS=-Xms256m -Xmx512m
-      - ACTIVE_PROFILE=test
+      - ACTIVE_PROFILE=${ACTIVE_PROFILE:-demo}
     volumes:
-      - /opt/vita/vita-auth-center/logs:/opt/vita/logs/
-      - /opt/vita/vita-auth-center/dumps:/opt/vita/dumps/
+      - ${VITA_DATA_DIR:-./logs}/vita-auth-center/logs:/opt/vita/logs/
+      - ${VITA_DATA_DIR:-./logs}/vita-auth-center/dumps:/opt/vita/dumps/
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "1"
+        compress: "true"
 
   vita-api:
-    image: xxxxx/vita-api:1.0.0
+    image: ${VITA_API_IMAGE:-vita-api:latest}
     container_name: vita-api
     restart: always
     ports:
-      - "8023:8023"
+      - "${VITA_API_PORT:-8023}:8023"
     environment:
-#      - JAVA_OPTS=-Xms256m -Xmx512m
-      - ACTIVE_PROFILE=test
+      - ACTIVE_PROFILE=${ACTIVE_PROFILE:-demo}
     volumes:
-      - /opt/vita/vita-api/logs:/opt/vita/logs/
-      - /opt/vita/vita-api/dumps:/opt/vita/dumps/
+      - ${VITA_DATA_DIR:-./logs}/vita-api/logs:/opt/vita/vita-api/logs/
+      - ${VITA_DATA_DIR:-./logs}/vita-api/dumps:/opt/vita/vita-api/dumps/
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "1"
+        compress: "true"
 
   vita-message:
-    image: xxxxx/vita-message:1.0.0
+    image: ${VITA_MESSAGE_IMAGE:-vita-message:latest}
     container_name: vita-message
     restart: always
     ports:
-      - "8043:8043"
+      - "${VITA_MESSAGE_PORT:-8043}:8043"
     environment:
-      #      - JAVA_OPTS=-Xms256m -Xmx512m
-      - ACTIVE_PROFILE=test
+      - ACTIVE_PROFILE=${ACTIVE_PROFILE:-demo}
     volumes:
-      - /opt/vita/vita-message/logs:/opt/vita/logs/
-      - /opt/vita/vita-message/dumps:/opt/vita/dumps/
+      - ${VITA_DATA_DIR:-./logs}/vita-message/logs:/opt/vita/logs/
+      - ${VITA_DATA_DIR:-./logs}/vita-message/dumps:/opt/vita/dumps/
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "1"
+        compress: "true"
+
+  vita-im:
+    image: ${VITA_IM_IMAGE:-vita-im:latest}
+    container_name: vita-im
+    restart: always
+    ports:
+      - "${VITA_IM_PORT:-8053}:8053"
+    environment:
+      - ACTIVE_PROFILE=${ACTIVE_PROFILE:-demo}
+    volumes:
+      - ${VITA_DATA_DIR:-./logs}/vita-im/logs:/opt/vita/logs/
+      - ${VITA_DATA_DIR:-./logs}/vita-im/dumps:/opt/vita/dumps/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "1"
+        compress: "true"

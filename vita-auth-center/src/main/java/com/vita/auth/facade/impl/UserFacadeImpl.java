@@ -1,6 +1,8 @@
 package com.vita.auth.facade.impl;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -20,11 +22,13 @@ import com.vita.common.domain.common.dict.RedisKeyDict;
 import com.vita.common.domain.common.enums.DelFlagEnum;
 import com.vita.common.domain.user.*;
 import com.vita.common.exception.ServiceException;
+import com.vita.common.utils.AssertUtil;
 import com.vita.common.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -66,14 +70,23 @@ public class UserFacadeImpl implements UserFacade {
     }
 
     @Override
-    public UserInfoVO describeUserInfo() {
-        UserInfoBO currentUser = TokenUtil.getCurrentUser();
+    public UserInfoVO describeUserInfo(String token) {
+        UserInfoBO currentUser;
+        if (StrUtil.isBlank(token)) {
+            currentUser = TokenUtil.getCurrentUser();
+        } else {
+            String currentUserStr = redisTemplate.opsForValue().get(RedisKeyDict.USER_TOKEN + token);
+            currentUser = new Gson().fromJson(currentUserStr, UserInfoBO.class);
+        }
 
+        AssertUtil.notNullObject(currentUser, "用户不存在！");
         return new UserInfoVO()
+                .setUserId(currentUser.getUserId())
                 .setAvatar(currentUser.getAvatar())
                 .setUsername(currentUser.getUsername())
                 .setPhone(currentUser.getPhone())
-                .setEmail(currentUser.getEmail());
+                .setEmail(currentUser.getEmail())
+                .setRoles(currentUser.getRoles());
     }
 
     @Override
@@ -102,6 +115,31 @@ public class UserFacadeImpl implements UserFacade {
                         .stream()
                         .map(UserConverter.INSTANCE::convertDoToVo)
                         .collect(Collectors.toList()));
+    }
+
+    @Override
+    public String createUser(CreateUserDTO createUserDTO) {
+        return Convert.toStr(userService.createUser(createUserDTO));
+    }
+
+    @Override
+    public void updateUser(EditUserDTO editUserDTO) {
+        userService.updateUser(editUserDTO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteUser(Long id) {
+        userService.deleteUser(id);
+    }
+
+    @Override
+    public UserDetailVO getUserDetail(Long id) {
+        User user = userService.getValidUser(id);
+        List<Role> roles = roleService.describeUserRoles(id);
+        UserDetailVO userDetailVO = UserConverter.INSTANCE.convertDoToDetailVo(user);
+        userDetailVO.setRoles(roles.stream().map(RoleConverter.INSTANCE::convertDoToBo).collect(Collectors.toList()));
+        return userDetailVO;
     }
 
     private String describeAndGenerateToken(User user, List<Role> roles) {

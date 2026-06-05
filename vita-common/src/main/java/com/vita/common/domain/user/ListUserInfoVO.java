@@ -7,7 +7,10 @@ import java.time.LocalDateTime;
 @Data
 public class ListUserInfoVO {
 
-    private Long id;
+    /**
+     * 用户id
+     */
+    private String id;
 
     /**
      * 头像路径

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.vita.auth.entity.User;
+import com.vita.common.domain.user.CreateUserDTO;
+import com.vita.common.domain.user.EditUserDTO;
 import com.vita.common.domain.user.InterfaceInfoBO;
 import com.vita.common.domain.user.ListUserInfoDTO;
 
@@ -23,4 +25,12 @@ public interface UserService extends IService<User> {
     Set<InterfaceInfoBO> describeInterfaces(Long userId);
 
     IPage<User> listUserInfo(Page<User> page, ListUserInfoDTO listUserInfoDTO);
+
+    Long createUser(CreateUserDTO createUserDTO);
+
+    void updateUser(EditUserDTO editUserDTO);
+
+    void deleteUser(Long id);
+
+    User getValidUser(Long id);
 }

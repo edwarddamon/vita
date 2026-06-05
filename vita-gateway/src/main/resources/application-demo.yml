@@ -1,4 +1,3 @@
-# demo yml
 server:
   port: 8888
   servlet:
@@ -7,6 +6,12 @@ server:
 spring:
   application:
     name: vita-gateway
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: redis_pwd
+      database: 10
   cloud:
     nacos:
       discovery:
@@ -16,48 +21,45 @@ spring:
         namespace: vita-dev
         group: dev
     gateway:
-      routes:
-        - id: vita-api
-          uri: lb://vita-api
-          predicates:
-            - Path=/api/**
-          filters:
-            # 转发后路径去掉 /api
-            - StripPrefix=1
-        - id: vita-auth-center
-          uri: lb://vita-auth-center
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
-        - id: vita-message
-          uri: lb://vita-message
-          predicates:
-            - Path=/message/**
-          filters:
-            - StripPrefix=1
+      server:
+        webflux:
+          routes:
+          - id: vita-api
+            uri: lb://vita-api
+            predicates:
+              - Path=/api/**
+            filters:
+              # 转发后路径去掉 /api
+              - StripPrefix=1
 
+          - id: vita-auth-center
+            uri: lb://vita-auth-center
+            predicates:
+              - Path=/auth/**
+            filters:
+              - StripPrefix=1
+
+          - id: vita-message
+            uri: lb://vita-message
+            predicates:
+              - Path=/message/**
+            filters:
+              - StripPrefix=1
+
+          # IM即时通讯服务
+          - id: vita-im
+            uri: lb:ws://vita-im
+            predicates:
+              - Path=/im/**
+            filters:
+              - StripPrefix=1
+
+# 相关接口配置
 interface:
-  whitelist:
+  white-list:
     - /auth/user/login
-
-# 接口文档配置
-knife4j:
-  gateway:
-    enabled: true
-    routes:
-      - name: 外部交互微服务
-        url: /api/v3/api-docs?group=default
-        service-name: vita-api
-        context-path: /api
-      - name: 认证中心微服务
-        url: /auth/v3/api-docs?group=default
-        service-name: vita-auth-center
-        context-path: /auth
-      - name: 消息微服务
-        url: /message/v3/api-docs?group=default
-        service-name: vita-message
-        context-path: /message
+  url-token-to-header-list:
+    - /im/ws/**
 
 # 日志级别
 logging:

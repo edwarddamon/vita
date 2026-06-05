@@ -3,8 +3,6 @@ package com.vita.api.controller;
 import com.vita.api.service.MailService;
 import com.vita.common.domain.Result;
 import com.vita.common.domain.mail.CommonMailSendDto;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -23,12 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/mail")
-@Tag(name = "email", description = "邮件相关")
 public class MailController {
 
     private final MailService mailService;
 
-    @Operation(summary = "外部邮件发送")
+    /**
+     * 外部邮件发送
+     *
+     * @param commonMailSendDto 邮件发送参数
+     * @return 响应信息
+     */
     @PostMapping(value = "/send")
     public Result<Void> send(@Validated @RequestBody CommonMailSendDto commonMailSendDto) {
         mailService.send(commonMailSendDto);

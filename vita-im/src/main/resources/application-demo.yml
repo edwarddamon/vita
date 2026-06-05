@@ -1,0 +1,38 @@
+server:
+  port: 8053
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: vita-im
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: vita-dev
+        group: dev
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: full
+
+# 日志级别
+logging:
+  level:
+    root: info
+    com.vita.common.client: debug
+
+# 通用线程池
+vita:
+  common:
+    task-executor:
+      core-pool-size: 4
+      max-pool-size: 8
+      queue-capacity: 100
+      keep-alive-seconds: 300

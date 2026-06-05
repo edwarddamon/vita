@@ -23,14 +23,6 @@ spring:
     # 授权码（邮箱生成）
     password: xxxxxx
 
-# 接口文档配置
-knife4j:
-  enable: true
-  basic:
-    enable: true
-    username: vita
-    password: vita
-
 # 日志级别
 logging:
   level:

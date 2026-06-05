@@ -14,11 +14,12 @@ spring:
         password: nacos
         namespace: vita-dev
         group: dev
-  redis:
-    host: 127.0.0.1
-    port: 6379
-    password: redis
-    database: 0
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: redis
+      database: 10
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/demo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
@@ -30,14 +31,6 @@ mybatis-plus:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-# 接口文档配置
-knife4j:
-  enable: true
-  basic:
-    enable: true
-    username: vita
-    password: vita
 
 # 日志级别
 logging:

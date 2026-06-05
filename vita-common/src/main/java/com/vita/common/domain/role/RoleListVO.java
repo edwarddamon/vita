@@ -8,7 +8,7 @@ public class RoleListVO {
     /**
      * 角色id
      */
-    private Integer id;
+    private String id;
 
     /**
      * 角色code
@@ -21,7 +21,7 @@ public class RoleListVO {
     private String name;
 
     /**
-     * 角色数据权限（OWNER-只有操作自己数据的权限；ALL-可操作所有数据的权限）
+     * 角色数据权限（OWNER-仅自己；ALL-所有人）
      */
     private String dataAuth;
 

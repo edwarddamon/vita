@@ -26,6 +26,7 @@
         update_time
         FROM inf_user
         <where>
+            AND del_flag = 0
             <if test="listUserInfoDTO.email != null and listUserInfoDTO.email != ''">
                 AND email like concat('%', #{listUserInfoDTO.email}, '%')
             </if>

@@ -1,0 +1,123 @@
+# 本地/演示用基础设施编排。敏感信息通过 .env 注入，参考 .env.example.properties。
+services:
+  mysql:
+    image: mysql:8.0.28
+    container_name: mysql
+    mem_limit: 512m
+    mem_reservation: 256m
+    restart: always
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme_mysql_root}
+    volumes:
+      - ${DATA_DIR:-./data}/mysql/conf:/etc/mysql/conf.d
+      - ${DATA_DIR:-./data}/mysql/data:/var/lib/mysql
+      - ${DATA_DIR:-./data}/mysql/logs:/var/log/mysql
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        compress: "true"
+
+  redis:
+    image: redis:5.0
+    container_name: redis
+    mem_limit: 128m
+    mem_reservation: 64m
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${DATA_DIR:-./data}/redis/data:/data
+      - ${DATA_DIR:-./data}/redis/conf/redis.conf:/etc/redis/redis.conf
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: /bin/sh -c "redis-server /etc/redis/redis.conf --requirepass ${REDIS_PASSWORD:-changeme_redis}"
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        compress: "true"
+
+  nacos_v2:
+    image: nacos/nacos-server:v2.4.0
+    container_name: nacos_v2
+    mem_limit: 1280m
+    mem_reservation: 512m
+    restart: always
+    ports:
+      - ${NACOS_V2_HTTP_PORT:-8848}:8848
+      - ${NACOS_V2_GRPC_PORT:-9848}:9848
+      - ${NACOS_V2_GRPC_PORT2:-9849}:9849
+    environment:
+      TZ: Asia/Shanghai
+      MODE: standalone
+      NACOS_AUTH_ENABLE: true
+      NACOS_AUTH_TOKEN: ${NACOS_V2_AUTH_TOKEN:-changeme_nacos_auth_token}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_V2_AUTH_IDENTITY_KEY:-identityKey}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_V2_AUTH_IDENTITY_VALUE:-identityValue}
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: ${NACOS_V2_MYSQL_SERVICE_HOST:-mysql}
+      MYSQL_SERVICE_PORT: ${NACOS_V2_MYSQL_SERVICE_PORT:-3306}
+      MYSQL_SERVICE_USER: ${NACOS_V2_DB_USER:-nacos}
+      MYSQL_SERVICE_PASSWORD: ${NACOS_V2_DB_PASSWORD:-changeme_nacos}
+      MYSQL_SERVICE_DB_NAME: ${NACOS_V2_DB_NAME:-nacos_config}
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    volumes:
+      - ${DATA_DIR:-./data}/nacos_v2/conf/:/home/nacos/conf
+      - ${DATA_DIR:-./data}/nacos_v2/logs/:/home/nacos/logs
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        compress: "true"
+    depends_on:
+      - mysql
+      - redis
+
+  nacos_v3:
+    image: nacos/nacos-server:v3.2.1
+    container_name: nacos_v3
+    mem_limit: 1280m
+    mem_reservation: 512m
+    restart: always
+    ports:
+      - ${NACOS_V3_CONSOLE_PORT:-8080}:8080
+      - ${NACOS_V3_HTTP_PORT:-8848}:8848
+      - ${NACOS_V3_GRPC_PORT:-9848}:9848
+      - ${NACOS_V3_GRPC_PORT2:-9849}:9849
+    environment:
+      TZ: Asia/Shanghai
+      MODE: standalone
+      NACOS_AUTH_ENABLE: true
+      NACOS_AUTH_TOKEN: ${NACOS_V3_AUTH_TOKEN:-changeme_nacos_auth_token}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_V3_AUTH_IDENTITY_KEY:-identityKey}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_V3_AUTH_IDENTITY_VALUE:-identityValue}
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: ${NACOS_V3_MYSQL_SERVICE_HOST:-mysql}
+      MYSQL_SERVICE_PORT: ${NACOS_V3_MYSQL_SERVICE_PORT:-3306}
+      MYSQL_SERVICE_USER: ${NACOS_V3_DB_USER:-nacos}
+      MYSQL_SERVICE_PASSWORD: ${NACOS_V3_DB_PASSWORD:-changeme_nacos}
+      MYSQL_SERVICE_DB_NAME: ${NACOS_V3_DB_NAME:-nacos_config_v3}
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=6000&socketTimeout=9000&autoReconnect=true&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    volumes:
+      - ${DATA_DIR:-./data}/nacos_v3/conf/:/home/nacos/conf
+      - ${DATA_DIR:-./data}/nacos_v3/logs/:/home/nacos/logs
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        compress: "true"
+    depends_on:
+      - mysql
+      - redis

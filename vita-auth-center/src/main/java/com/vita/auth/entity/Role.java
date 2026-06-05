@@ -37,7 +37,7 @@ public class Role {
     private String name;
 
     /**
-     * 角色数据权限（OWNER-只有操作自己数据的权限；ALL-可操作所有数据的权限）
+     * 角色数据权限（OWNER-仅自己；ALL-所有人）
      */
     @TableField("data_auth")
     private String dataAuth;
